@@ -1,4 +1,4 @@
-pragma once
+#pragma once
 
 // Can force gcc to use native complex data structure by including <complex.h> before fftw
 #include <fstream>
