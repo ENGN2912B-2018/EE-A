@@ -23,23 +23,11 @@ int main(){
 	//Set with CS pin to use for next transfers
 	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
 
-	//Transfer 1 byte
-	//uint8_t data;
-	//data = bcm2835_spi_transfer((uint8_t)0x55);
-
-  //Transfer many bytes
-	// char data_buffer[10];
-	// int Count;
-	// for (Count = 0; Count < 10; Count++)
-	// 	data_buffer[Count] = 0x80 + Count;
-	// bcm2835_spi_transfern(&data_buffer[0], 10);			//data_buffer used for tx and rx
-
-
 //================================================================================================================================
 // check the device id
 //================================================================================================================================
 
-cout<<"testing read on devide id reg..."<<endl;
+cout<<"testing read on device id reg..."<<endl;
 
   //set up some useful stuff
   #define WRITE_SINGLE 0x00 //set r/w bit low and multibyte bit low - mask address with 0000 0000
@@ -67,7 +55,7 @@ cout<<"testing read on devide id reg..."<<endl;
   #define FIFO_CTL 0x38
   #define MODE_1 0x5F //01 0 11111 sets mode: fifo, no trigger, 32 samples to watermark
 
-  char set_fifo[] = {WRITE_SINGLE|FIFO_CTL,MODE_1};
+  char set_fifo[] = {WRITE_SINGLE|FIFO_CTL, MODE_1};
   size=2;//2 bytes for write
 
   //now send it over
