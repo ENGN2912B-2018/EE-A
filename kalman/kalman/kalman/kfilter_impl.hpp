@@ -4,7 +4,7 @@
 // Copyright (C) 2004        Vincent Zalzal, Sylvain Marleau
 // Copyright (C) 2001, 2004  Richard Gourdeau
 // Copyright (C) 2004        GRPR and DGE's Automation sector
-//                           École Polytechnique de Montréal
+//                           ï¿½cole Polytechnique de Montrï¿½al
 //
 // Code adapted from algorithms presented in :
 //      Bierman, G. J. "Factorization Methods for Discrete Sequential
@@ -68,7 +68,7 @@ namespace Kalman {
 
   template<typename T, K_UINT_32 BEG, bool OQ, bool OVR, bool DBG>
   void KFilter<T, BEG, OQ, OVR, DBG>::makeMeasure() {
-    
+
     // z = Hx + Vv
     K_UINT_32 i, j;
 
@@ -90,8 +90,8 @@ namespace Kalman {
     if (flags & ( KALMAN_N_MODIFIED | KALMAN_NU_MODIFIED ) ) {
       B.resize(n, nu);
       makeBaseB();
-    }   
-    
+    }
+
     EKFilter<T, BEG, OQ, OVR, DBG>::sizeUpdate();
   }
 

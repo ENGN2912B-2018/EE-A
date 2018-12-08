@@ -1,0 +1,32 @@
+These notes use the notation and are based on the explanation from: https://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/?fbclid=IwAR3thajj4CBwsN4t1Xfz_TwEe0KXy6nv_8dGZlFmKGZmSW5uxGlKdEeHkcs
+
+Summary: The Kalman Filter is a probabilistic approach to find the most like desired characteristic
+of a system (a prediction on a characteristic) using some relation (linear/non-linear) in conjunction
+with actual reading from some sensor. The true advantage of this approach is that it is probabilistic;
+no hard decision is made through successive iterations which allows for the system to make slight
+corrections through each iteration if a given prediction becomes more likely given the received sensor
+data. (If hard decisions were made each iteration it would be impossible to correct; any hard decision
+AT ANY ITERATION that was incorrect would mean the system could never be able to select the right decision
+in the end)
+
+
+  Functions:
+  --------------------------
+  Kalman using matrices to develop a system of equations. Matrices that describe
+  functions for the systems are really transformations to calculate the next
+  prediction for the next iteration.
+
+  F:  Matrix describes function for the prediction in next time step
+  H:  Matrix describes the sensor such that you can find the sensor reading that would give the state (characteristic) given by the prediction
+  B:  Matrix describes function for the uncertainty in the prediction in the next time step
+
+
+  Covariance matrix
+  --------------------------
+  Each prediction, and sensor calculation is really a distribution (assumed to
+  be Gaussian for ease). Therefore, each prediction has characteristic
+  to that defines the distribution. Since it's assumed Gaussian, covariance is
+  used.
+
+  P:  Covariance for the prediction
+  Q:  Covariance for the noise in the prediction (added to P)
