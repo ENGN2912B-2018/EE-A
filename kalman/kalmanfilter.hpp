@@ -1,7 +1,6 @@
 #pragma once
 
 #include "kalman_lib/kalman/kfilter.hpp"
-#include "kalman_lib/kalman/ekfilter_impl.hpp"
 
 // Author: Kevin Anderson
 // Date:   December 8, 2018
@@ -10,14 +9,18 @@
 // accelerometer data. It provides implementation for all virtual functions in
 // the superarent (EKFilter) and parent (KFilter) class.
 
+using namespace Kalman;
+
 // No optimations
 template<typename T, K_UINT_32 BEG, bool OQ = false,
          bool OVR = false, bool DBG = false>
-class KalmanFilter : public KFilter<T, BEG, OQ, OVR, DBG> {
+class Kalman : public KFilter<T, BEG, OQ, OVR, DBG> {
 public:
 
-  ~KFilter() {
+  Kalman() {}
+  ~Kalman() {
     // delete all member vairables
+    /*
     delete x__;
     delete B;
     delete x;
@@ -35,12 +38,13 @@ public:
     delete nw;
     delete m;
     delete nv;
+    */
   }
 
 protected:
 
-
   // Matrix pre-creators
+  /*
   void makeBaseA() {}
 
   void makeBaseB() {}
@@ -54,9 +58,10 @@ protected:
   void makeBaseV() {}
 
   void makeBaseR() {}
-
+  */
 
   // Matrix creators
+  /*
   void makeA() {}
 
   void makeB() {}
@@ -70,16 +75,17 @@ protected:
   void makeV() {}
 
   void makeDZ() {}
-
+  */
 
 
 private:
-
+/*
   void makeProcess() {}
 
   void makeMeasure() {}
 
   void sizeUpdate() {}
+  */
 
 
 }
