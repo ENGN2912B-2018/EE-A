@@ -29,6 +29,6 @@ private:
   // void thread_spi(CircularFifo<char*, 1000> *queue);
   CircularFifo<char, 1000> queue;
   // CircularFifo<char*, 1000> queue;
-  // thread thread_obj;
+  thread thread_obj;
 
 };

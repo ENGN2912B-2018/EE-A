@@ -1,6 +1,7 @@
-#include "ADXL345.h"
+#include "ADXL345_threaded.h"
 #include <thread>
 #include "circularfifo_memory_sequential_consistent.hpp"
+#include <thread>
 
 
 // some nice useful defines
@@ -76,7 +77,8 @@ ADXL345::ADXL345(int data_rate, int spi_rate, int range){
   //set range
 
   //start collection thread
-  
+  thread_obj = thread(thread_spi, &queue);
+  thread_obj.detach();
 
 }
 
@@ -84,10 +86,10 @@ ADXL345::ADXL345(int data_rate, int spi_rate, int range){
 void ADXL345::start(){
 
   // create thread and pass buffer and length to it
-  thread thread_obj(thread_spi, &queue);
+  // thread thread_obj(thread_spi, &queue);
 
   // check the output
-  thread_obj.join();
+  // thread_obj.join();
 }
 
 int** ADXL345::read(int n){
@@ -161,11 +163,11 @@ int main(){
   int read_size = 10;
 
   //turn on the accelerometer and start adding to the queue
-  acc.start();
+  // acc.start();
 
   int **results = acc.read(read_size);
 
-  //loop through the queue a couple times to test reading
+  // //loop through the queue a couple times to test reading
   for(int n = 0; n<read_size; n++){
       cout<<results[n][0]<<" "<<results[n][1]<<" "<<results[n][2]<<endl;
   }
