@@ -26,7 +26,7 @@ public:
 private:
   char* buffer;
   // void thread_spi(CircularFifo<char*, 1000> *queue);
-  CircularFifo<int*, 1000> queue;
+  CircularFifo<char, 1000> queue;
   // CircularFifo<char*, 1000> queue;
 
 };

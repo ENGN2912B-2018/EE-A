@@ -2,11 +2,12 @@
 #include <thread>
 #include <bcm2835.h>
 #include "circularfifo_memory_sequential_consistent.hpp"
+#include <bitset>
 
 using namespace std;
 using namespace memory_sequential_consistent;
 
-void thread_spi(CircularFifo<char*, 1000> *queue){
+void thread_spi(CircularFifo<char, 1000> *queue){
   //bcm setup
   bcm2835_init();
   //Setup SPI pins
@@ -41,48 +42,62 @@ void thread_spi(CircularFifo<char*, 1000> *queue){
     bcm2835_spi_transfern(&write_powerctl[0], 2);
   }
 
-  //================================================================================================================================
-  // data read and q push
-  //================================================================================================================================
-
+  //data reg
   #define DATA 0x32
 
   // loop through data read and push
-  for(int i = 0; i<100; i++){
+  cout<<"pre transfer"<<endl;
+  for(int i = 0; i<10; i++){
 
     char read_xyz[] = {READ_MULTI|DATA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     bcm2835_spi_transfern(&read_xyz[0], 7);
 
-    int x  = (read_xyz[1]<<2)|read_xyz[2];
-    int y  = (read_xyz[3]<<2)|read_xyz[4];
-    int z  = (read_xyz[5]<<2)|read_xyz[6];
+    //serially push x, y, z onto the q
+    for(int n = 1; n<=6; n++){
+      queue->push(read_xyz[n]);
+    }
 
-    char data[3] = {x,y,z};
+    int x = (read_xyz[1]<<2)|read_xyz[2];
+    int y = (read_xyz[3]<<2)|read_xyz[4];
+    int z = (read_xyz[5]<<2)|read_xyz[6];
 
-    queue->push(data);
+    cout<<x<<" "<<y<<" "<<z<<endl;
   }
 }
 
 
 int main(){
   // init queue
-  CircularFifo<char*, 1000> queue;
+  CircularFifo<char, 1000> queue;
 
   // create thread and pass buffer and length to it
   thread thread_obj(thread_spi, &queue);
+
   //check the output
   thread_obj.join();
 
+  cout<<"post transfer"<<endl;
   while(1){
-    char* m;
-    if (false == queue.pop(m)) {cout<<"q empty!"<<endl; break;}
-    else{
-      for(int i = 0; i < 3; i++){
-        cout<<(int)m[i]<<endl;
+    char m;
+    char data[6];
+
+    for(int i = 0; i<6; i++){
+      // allocate all chars to data array
+      if (false == queue.pop(m)) {cout<<"q empty!"<<endl; exit(0);}
+      else{
+        data[i] = m;
       }
+
     }
+      //reconstruct 10 bit ints and cout
+      int x = (data[0]<<2)|data[1];
+      int y = (data[2]<<2)|data[3];
+      int z = (data[4]<<2)|data[5];
+
+      cout<<x<<" "<<y<<" "<<z<<endl;
+
 
   }
 
 
-}
+  }
