@@ -1,24 +1,24 @@
-#include <bcm2835.h>
 #include <iostream>
-#include <bitset>
+#include <thread>
+#include <bcm2835.h>
+#include "circularfifo_memory_sequential_consistent.hpp"
 
 using namespace std;
+using namespace memory_sequential_consistent;
 
-int main(){
-
+void thread_spi(CircularFifo<char*, 1000> *queue){
   //bcm setup
-
   bcm2835_init();
   //Setup SPI pins
-	bcm2835_spi_begin();
-	//Set CS pins polarity to low
-	bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, 0);
-	//Set SPI clock speed - http://www.airspayce.com/mikem/bcm2835/group__constants.html#gaf2e0ca069b8caef24602a02e8a00884e
-	bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_256);
-	//Set SPI data mode - http://www.airspayce.com/mikem/bcm2835/group__constants.html#ga8dd7bb496565324800130100e6bf6d86
-	bcm2835_spi_setDataMode(BCM2835_SPI_MODE3);
-	//Set with CS pin to use for next transfers
-	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
+  bcm2835_spi_begin();
+  //Set CS pins polarity to low
+  bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, 0);
+  //Set SPI clock speed - http://www.airspayce.com/mikem/bcm2835/group__constants.html#gaf2e0ca069b8caef24602a02e8a00884e
+  bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_256);
+  //Set SPI data mode - http://www.airspayce.com/mikem/bcm2835/group__constants.html#ga8dd7bb496565324800130100e6bf6d86
+  bcm2835_spi_setDataMode(BCM2835_SPI_MODE3);
+  //Set with CS pin to use for next transfers
+  bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
 
 
   //useful defines
@@ -41,42 +41,48 @@ int main(){
     bcm2835_spi_transfern(&write_powerctl[0], 2);
   }
 
-  //check fifo status, samples should be piling
-  #define FIFO_STATUS 0x39
-  char read_fifostatus[] = {READ_SINGLE|FIFO_STATUS, 0x00};
-  bcm2835_spi_transfern(&read_fifostatus[0], 2);
-  bitset<8> status(read_fifostatus[1]);
-  cout<<"status: "<<status<<endl;
-
   //================================================================================================================================
-  // data read
+  // data read and q push
   //================================================================================================================================
 
   #define DATA 0x32
 
-  while(1){
+  // loop through data read and push
+  for(int i = 0; i<100; i++){
+
     char read_xyz[] = {READ_MULTI|DATA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     bcm2835_spi_transfern(&read_xyz[0], 7);
-
-    // bitset<13> xb((read_xyz[1]<<5)|read_xyz[2]),
-    //           yb((read_xyz[3]<<5)|read_xyz[4]),
-    //           zb((read_xyz[5]<<5)|read_xyz[6]);
-    //
-    // cout<<"x: "<<xb<<endl;
-    // cout<<"y: "<<yb<<endl;
-    // cout<<"z: "<<zb<<endl;
 
     int x  = (read_xyz[1]<<2)|read_xyz[2];
     int y  = (read_xyz[3]<<2)|read_xyz[4];
     int z  = (read_xyz[5]<<2)|read_xyz[6];
 
-    // convert to m/s^2
+    char data[3] = {x,y,z};
 
-
-
-    cout<<"x: "<<x<<"  |  ";
-    cout<<"y: "<<y<<"  |  ";
-    cout<<"z: "<<z<<endl;
+    queue->push(data);
   }
-  return 0;
+}
+
+
+int main(){
+  // init queue
+  CircularFifo<char*, 1000> queue;
+
+  // create thread and pass buffer and length to it
+  thread thread_obj(thread_spi, &queue);
+  //check the output
+  thread_obj.join();
+
+  while(1){
+    char* m;
+    if (false == queue.pop(m)) {cout<<"q empty!"<<endl; break;}
+    else{
+      for(int i = 0; i < 3; i++){
+        cout<<(int)m[i]<<endl;
+      }
+    }
+
+  }
+
+
 }
