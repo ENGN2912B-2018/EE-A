@@ -28,6 +28,9 @@ void write_to_file(string filename) {}
 void filter(int* sensor_data) {}
 */
 
+// !**-->  All matricies have fixed size, eventually should change them to fixed size
+// for Eigen!!!!!
+
 int main() {
 
    // Create file stream
@@ -37,20 +40,30 @@ int main() {
    float fs = 3200;
    float step = 1/fs;
    // Initial conditions (need initialized values)
-   VectorXd x_init;
-   MatrixXd P_init;
+   VectorXd x_init(6);
+   MatrixXd P_init(6, 6);
    // Transformation matricies
-   MatrixXd A;   // Transformation matrix for prediction (F)
+   MatrixXd A(6,6);   // Transformation matrix for prediction (F)
    MatrixXd B;   // Uncertainty matrix
    MatrixXd C;   // Transformation matrix for readings (C)
    // Covariance matricies
    MatrixXd Q;
    MatrixXd R;
    // Initialize matricies
-   x_init << 0, 0;            // Assume intial position is zero
-   P_init << 0, 0, 0, 0;      // Assume intial velocity is zero
-   A << 1, step, 0, 1;
-   B << 1/2*pow(step,2), step;
+   x_init << 0, 0, 0, 0, 0, 0;            // Assume intial position is zero
+   P_init << 0, 0, 0, 0, 0, 0,      // Assume intial velocity is zero
+             0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0;
+   A << 1,  step, 0,    0,     0,   0,
+        0,  1,    0,    0,     0,   0,
+        0,  0,    1,    step,  0,   0,
+        0,  0,    0,    1,     0,   0,
+        0,  0,    0,    0,     1,   step,
+        0,  0,    0,    0,     0,   1;
+   B << 1/2*pow(step,2), step, 1/2*pow(step,2), step, 1/2*pow(step,2), step;
    C << 1, 1, 1, 1;
    Q << 1, 0, 0, 1;   // For testing purposes, assume zero matrix;
                       // In reality need to get value from some steady state

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 eigen
 k.cpp
 k.exe
@@ -6,7 +5,3 @@ k.hpp
 compile.txt
 kalman2.cpp
 kalman-cpp-master
-=======
-*.png
-*.pdf
->>>>>>> origin/embedded

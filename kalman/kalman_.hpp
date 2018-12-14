@@ -30,21 +30,21 @@ public:
 
   /**
   * Create a Kalman filter with the specified matrices.
-  *   A - System dynamics matrix
-  *   C - Output matrix
+  *   F - System dynamics matrix
+  *   H - Output matrix
   *   Q - Process noise covariance
   *   R - Measurement noise covariance
   *   P - Estimate error covariance
   */
   KalmanFilter(
       double dt,
-      const Eigen::MatrixXd& A,
-      const Eigen::MatrixXd& C,
+      const Eigen::MatrixXd& F,
+      const Eigen::MatrixXd& H,
       const Eigen::MatrixXd& Q,   // Covariance matrix describing noise (uncertainty from the environment)
       const Eigen::MatrixXd& R,   // Sensor noise
       const Eigen::MatrixXd& P
-  ) : A(A), C(C), Q(Q), R(R), P0(P),
-    m(C.rows()), n(A.rows()), dt(dt), initialized(false),
+  ) : F(F), H(H), Q(Q), R(R), P0(P),
+    m(H.rows()), n(F.rows()), dt(dt), initialized(false),
     I(n, n), x_hat(n), x_hat_new(n)
   {
     I.setIdentity();
@@ -83,11 +83,11 @@ public:
     if(!initialized)
       throw std::runtime_error("Filter is not initialized!");
 
-    x_hat_new = A * x_hat;
-    P = A*P*A.transpose() + Q;
-    K = P*C.transpose()*(C*P*C.transpose() + R).inverse();
-    x_hat_new += K * (y - C*x_hat_new);
-    P = (I - K*C)*P;
+    x_hat_new = F * x_hat;
+    P = F*P*F.transpose() + Q;
+    K = P*H.transpose()*(H*P*H.transpose() + R).inverse();
+    x_hat_new += K * (y - H*x_hat_new);
+    P = (I - K*H)*P;
     x_hat = x_hat_new;
     t += dt;
   }
@@ -96,9 +96,9 @@ public:
   * Update the estimated state based on measured values,
   * using the given time step and dynamics matrix.
   */
-  void update(const Eigen::VectorXd& y, double dt, const Eigen::MatrixXd A) {
+  void update(const Eigen::VectorXd& y, double dt, const Eigen::MatrixXd F) {
 
-    this->A = A;
+    this->F = F;
     this->dt = dt;
     update(y);
   }
@@ -112,7 +112,7 @@ public:
 private:
 
   // Matrices for computation
-  Eigen::MatrixXd A, C, Q, R, P, K, P0;
+  Eigen::MatrixXd F, H, Q, R, P, K, P0;
 
   // System dimensions
   int m, n;
