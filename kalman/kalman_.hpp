@@ -14,9 +14,10 @@
  * Adopted for state specified with position ande velocity
  *
  */
- 
+
 #pragma once
 
+#include "numerical.hpp"
 #include "../eigen/Eigen/Dense"
 
 class KalmanFilter {
@@ -39,8 +40,8 @@ public:
       double dt,
       const Eigen::MatrixXd& A,
       const Eigen::MatrixXd& C,
-      const Eigen::MatrixXd& Q,
-      const Eigen::MatrixXd& R,
+      const Eigen::MatrixXd& Q,   // Covariance matrix describing noise (uncertainty from the environment)
+      const Eigen::MatrixXd& R,   // Sensor noise
       const Eigen::MatrixXd& P
   ) : A(A), C(C), Q(Q), R(R), P0(P),
     m(C.rows()), n(A.rows()), dt(dt), initialized(false),

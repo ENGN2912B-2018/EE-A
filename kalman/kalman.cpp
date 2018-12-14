@@ -34,7 +34,8 @@ int main() {
    std::string filename = "kalman.dat";
    std::fstream file(filename);
    // Time step (set by the accelerometer)
-   float step = 1/1000;
+   float fs = 3200;
+   float step = 1/fs;
    // Initial conditions (need initialized values)
    VectorXd x_init;
    MatrixXd P_init;
@@ -46,28 +47,46 @@ int main() {
    MatrixXd Q;
    MatrixXd R;
    // Initialize matricies
+   x_init << 0, 0;            // Assume intial position is zero
+   P_init << 0, 0, 0, 0;      // Assume intial velocity is zero
    A << 1, step, 0, 1;
    B << 1/2*pow(step,2), step;
    C << 1, 1, 1, 1;
-   Q << 1, 1, 1, 1;
-   R << 1, 1, 1, 1;
-   P_init << 0, 0, 0, 0;
-   x_init << 0, 0;
+   Q << 1, 0, 0, 1;   // For testing purposes, assume zero matrix;
+                      // In reality need to get value from some steady state
+   R << 1, 0, 0, 1;   // No manufacturer senor sensitivity, use scaled identity matrix
    // Kalman filter
-   KalmanFilter kalman(0,A,C,Q,R,P_init);
+   KalmanFilter kalman(0, A, C, Q, R, P_init);
    kalman.init(0, x_init);    // Initialize state at t = 0
 
    // For testing, launch process to monitor key strokes (A - means stop
    // running filter)
    char let;
    bool stop = false;
-  
+
+   // Stop when 'a' key pressed
    while(!stop) {
-     kalman.update(read_sensor());
+     // Read data form the sensor_data
+     // float * samples = read_sensor();
+
+     // Amount of samples read from sensor
+     int len = 100;
+
+     float * velocity = (float *)malloc(sizeof(float)*len);
+     float * position = (float *)malloc(sizeof(float)*len);
+
+     velocity = numerical_int(samples, step, len);
+     position = numerical_int(velocity, step, len);
+
+     // Run Kalman filer on data and write to file
+     for(int x = 0; x < len; x++) {
+       kalman.update();
+       file << kalman.state();
+     }
+
      cin >> let;
      stop = let == 'a';
    }
-
 
    return 0;
 }
