@@ -17,6 +17,11 @@
 
 #pragma once
 
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <cmath>
 #include "numerical.hpp"
 #include "../eigen/Eigen/Dense"
 
