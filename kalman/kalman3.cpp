@@ -38,7 +38,8 @@ void filter(int* sensor_data) {}
 int main() {
 
    // Create file stream
-   std::fstream file("kalman.csv", std::fstream::out);
+   std::fstream file("./testing output files/kalman.csv", std::fstream::out);
+   std::fstream gain("./testing output files/gain.dat", std::fstream::out);
    // Read in values from file
    std::fstream data("../embedded/trials/straight_return.csv", std::fstream::in);
    //std::fstream data("stationary_filtered.csv", std::fstream::in);
@@ -103,7 +104,7 @@ int main() {
    std::cout << std::endl;
 
    MatrixXd K;
-   std::fstream gain("gain.dat", std::fstream::out);
+
 
    // Stop when 'a' key pressed
    while(iter <= test_len) {
@@ -131,9 +132,8 @@ int main() {
       }
     }
 
-
     for(int i = 0; i < 3; i++){
-     if(i == 3) {
+     if(i == 2) {
        file << x_(i) << std::endl;
      } else {
        file << x_(i) << ", ";
