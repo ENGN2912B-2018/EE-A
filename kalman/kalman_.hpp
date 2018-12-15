@@ -92,6 +92,18 @@ public:
     P = F*P*F.transpose() + Q;
     K = P*H.transpose()*(H*P*H.transpose() + R).inverse();
     x_hat_new += K * (y - H*x_hat_new);
+
+/*
+    Eigen::VectorXd temp =  K * (y - H*x_hat_new);
+    for(int i = 0; i < 9; i++) {
+      if(i == 8) {
+        std::cout << temp(i) << std::endl;
+      } else {
+        std::cout << temp(i) << ", ";
+       }
+    }
+*/
+
     P = (I - K*H)*P;
     x_hat = x_hat_new;
     t += dt;
@@ -102,7 +114,6 @@ public:
   * using the given time step and dynamics matrix.
   */
   void update(const Eigen::VectorXd& y, double dt, const Eigen::MatrixXd F) {
-
     this->F = F;
     this->dt = dt;
     update(y);
@@ -111,9 +122,30 @@ public:
   /**
   * Return the current state and time.
   */
-  Eigen::VectorXd state() { return x_hat; };
-  double time() { return t; };
+  Eigen::VectorXd state() {
+    return this->x_hat;
+  };
 
+  /*
+   * Return the covariance matrix
+   */
+   Eigen::MatrixXd covP() {
+     return this->P;
+   }
+
+   /*
+    * Return Kalman gain
+    */
+    Eigen::MatrixXd gain() {
+      return this->K;
+    }
+
+   /*
+    * Return the current time
+    */
+   double time() {
+     return t;
+   };
 private:
 
   // Matrices for computation
