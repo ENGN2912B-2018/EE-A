@@ -1,7 +1,10 @@
 #include "ADXL345_threaded.h"
-#include <thread>
 #include "circularfifo_memory_sequential_consistent.hpp"
 #include <thread>
+#include <complex>
+#include <vector>
+#include <liquid/liquid.h>
+#include <fstream>
 
 
 // some nice useful defines
@@ -14,7 +17,7 @@ using namespace memory_sequential_consistent;
 
 
 //multithreading method that pushes to the queue
-void thread_spi(CircularFifo<char, 1000> *queue){
+void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf qy, firfilt_crcf qz){
 
   //check if in correct power mode, if not: set
   #define POWER_CTL 0x2D
@@ -37,21 +40,57 @@ void thread_spi(CircularFifo<char, 1000> *queue){
     char read_xyz[] = {READ_MULTI|DATA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     bcm2835_spi_transfern(&read_xyz[0], 7);
 
+    //reconstruct the data correctly into floats
+    int x_raw = (read_xyz[2]<<8)|read_xyz[1];
+    int y_raw = (read_xyz[4]<<8)|read_xyz[3];
+    int z_raw = (read_xyz[6]<<8)|read_xyz[5];
+
+    bool xb = x_raw & 0x8000;
+    bool yb = y_raw & 0x8000;
+    bool zb = z_raw & 0x8000;
+
+    float scale_factor = 3.9*(9.8/1000);
+
+    //data in m/s/s
+    float x_m = ((float)x_raw - 65536*(int)xb) * scale_factor;
+    float y_m = ((float)y_raw - 65536*(int)yb) * scale_factor;
+    float z_m = ((float)z_raw - 65536*(int)zb) * scale_factor;
+
+    //low pass the output before q push
+    // complex<float> inx;
+    // complex<float> outx;
+    // complex<float> iny;
+    // complex<float> outy;
+    // complex<float> inz;
+    // complex<float> outz;
+    //
+    // // //filter x
+    // firfilt_crcf_push(qx, inx);    // push input sample
+    // firfilt_crcf_execute(qx,&outx); // compute output
+    //
+    // //filter x
+    // firfilt_crcf_push(qy, iny);    // push input sample
+    // firfilt_crcf_execute(qy,&outy); // compute output
+    //
+    // //filter x
+    // firfilt_crcf_push(qz, inz);    // push input sample
+    // firfilt_crcf_execute(qz,&outz); // compute output
+
+
     //serially push x, y, z onto the q
-    for(int n = 1; n<=6; n++){
-      queue->push(read_xyz[n]);
-    }
+    queue->push(x_m);
+    queue->push(y_m);
+    queue->push(z_m);
 
-    // int x = (read_xyz[1]<<2)|read_xyz[2];
-    // int y = (read_xyz[3]<<2)|read_xyz[4];
-    // int z = (read_xyz[5]<<2)|read_xyz[6];
+    // cout<<i<<": "<<x_m<<", "<<y_m<<", "<<z_m<<endl;
 
-    // cout<<x<<" "<<y<<" "<<z<<endl;
+
   }
 }
 
 //constructor
-ADXL345::ADXL345(int data_rate, int spi_rate, int range){
+ADXL345::ADXL345(){
+  cout<<"constructor"<<endl;
   //first, set up bcm stuff for spi
   bcm2835_init();
   //Setup SPI pins
@@ -72,15 +111,37 @@ ADXL345::ADXL345(int data_rate, int spi_rate, int range){
   char set_fifo[] = {WRITE_SINGLE|FIFO_CTL, MODE_1};
   bcm2835_spi_transfern(&set_fifo[0], 2);
 
-  //set data rate
+  //set up filter
 
-  //set range
+  //read in taps
+  // ifstream taps_data("ftaps2.csv");
+  // int taps_length = 325;
+  // float taps[taps_length];
+  // char x[10000];
+  //
+  // for(int i=0; i<taps_length; i++){
+  //   taps_data.getline(x,10000,',');
+  //   float y = atof(x);
+  //   taps[i] = y;
+  //   // cout<<i<<": "<<y<<endl;
+  // }
+  //
+  // //instantiate filter with taps
+  // qx = firfilt_crcf_create(taps,taps_length);
+  // qy = firfilt_crcf_create(taps,taps_length);
+  // qz = firfilt_crcf_create(taps,taps_length);
 
   //start collection thread
-  thread_obj = thread(thread_spi, &queue);
-  thread_obj.detach();
+  cout<<"starting thread"<<endl;
+  thread_obj = thread(thread_spi, &queue, qx, qy, qz);
+  // thread_obj.detach();
 
 }
+
+ADXL345::~ADXL345(){
+  thread_obj.join();
+}
+
 
 //start method inits a buffer and turns on the accelerometer
 void ADXL345::start(){
@@ -92,82 +153,51 @@ void ADXL345::start(){
   // thread_obj.join();
 }
 
-int** ADXL345::read(int n){
+float** ADXL345::read(int n){
 
-  //necessary variables
-  int** out_data = new int*[n];
-  char m;
-  char data[6];
+  // necessary variables
+  float** out_data = new float*[n];
 
-
-  //loop through chunk and send to out_data
   for(int i=0; i<n; i++){
-    //reconstruct ints
-    for(int j = 0; j<6; j++){
-      // allocate all chars to data array
+    //assign float array
+    out_data[i] = new float[3];
+
+    //read x, y, z from q
+    for(int j=0; j<3; j++){
+      float m; //tmp float for q pop
+
       if (false == queue.pop(m)) {cout<<"q empty!"<<endl; break;}
       else{
-        data[j] = m;
+        out_data[i][j] = m;
       }
-
     }
-      //reconstruct 10 bit ints and save to array (TODO: optimize by removing int assignments)
-      int x = (data[0]<<2)|data[1];
-      int y = (data[2]<<2)|data[3];
-      int z = (data[4]<<2)|data[5];
-
-      // cout<<x<<" "<<y<<" "<<z<<endl;
-
-      int read_array[3] = {x,y,z};
-      out_data[i] = new int[n];
-      for(int k = 0; k<3; k++){
-        out_data[i][k] = read_array[k];
-      }
-
-      // cout<<out_data[i][0]<<endl;
-
 
   }
 
-  // for(int n = 0; n<10; n++){
-  //     cout<<out_data[n][0]<<" "<<out_data[n][1]<<" "<<out_data[n][2]<<endl;
-  // }
+
   return out_data;
-}
-
-
-
-//functions to set custom reg values if needed
-
-// write to arbitrary register
-void ADXL345::write_reg(char reg, char data){
-
-}
-
-// read arbitrary register
-char* ADXL345::read_reg_single(char reg){
-
-}
-
-char* ADXL345::read_reg_multi(char reg){
-  //don't know if this is necessary, given only multi reg read is on data colleciton
-
 }
 
 
 
 int main(){
   //instantiate accelerometer class
-  ADXL345 acc(0,0,0);
+  cout<<"class up"<<endl;
+  ADXL345 acc;
 
   int read_size = 10;
 
   //turn on the accelerometer and start adding to the queue
   // acc.start();
 
-  int **results = acc.read(read_size);
+  //wait a second
+  for(int i=0;i<10000000; i++){
 
-  // //loop through the queue a couple times to test reading
+  }
+
+  float **results = acc.read(read_size);
+
+  // //loop through the results a couple times to test reading
   for(int n = 0; n<read_size; n++){
       cout<<results[n][0]<<" "<<results[n][1]<<" "<<results[n][2]<<endl;
   }

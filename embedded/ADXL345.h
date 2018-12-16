@@ -12,12 +12,7 @@ using namespace memory_sequential_consistent;
 class ADXL345{
 public:
   //constructor
-  ADXL345(int data_rate, int spi_rate, int range);
-
-  //functions to set custom reg values if needed
-  void write_reg(char reg, char data);
-  char* read_reg_single(char reg);
-  char* read_reg_multi(char reg);
+  ADXL345();
 
   //data methods
   void start(); //starts recording to the buffer

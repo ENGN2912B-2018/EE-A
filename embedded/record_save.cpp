@@ -128,7 +128,7 @@ int main(){
 
   // lowpass filter
   //read taps in
-  ifstream taps_data("filtertaps.csv");
+  ifstream taps_data("ftaps2.csv");
   int taps_length = 91;
   float taps[taps_length];
   char x[10000];
