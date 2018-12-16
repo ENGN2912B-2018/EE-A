@@ -4,6 +4,8 @@
 #include <string>
 #include <thread>
 #include "circularfifo_memory_sequential_consistent.hpp"
+#include <complex>
+#include <liquid/liquid.h>
 
 
 using namespace std;
@@ -12,23 +14,26 @@ using namespace memory_sequential_consistent;
 class ADXL345{
 public:
   //constructor
-  ADXL345(int data_rate, int spi_rate, int range);
+  ADXL345();
 
-  //functions to set custom reg values if needed
-  void write_reg(char reg, char data);
-  char* read_reg_single(char reg);
-  char* read_reg_multi(char reg);
+  //destructor
+  ~ADXL345();
+
 
   //data methods
-  void start(); //starts recording to the buffer
-  int** read(int n);
+  void start(); //starts recording to the buffer and low passes
+  float** read(int n); //pulls a n long chunk of samples
 
 
 private:
   char* buffer;
-  // void thread_spi(CircularFifo<char*, 1000> *queue);
-  CircularFifo<char, 1000> queue;
-  // CircularFifo<char*, 1000> queue;
-  thread thread_obj;
+  CircularFifo<float, 1000> queue; // queue for multithreading
+
+  thread thread_obj; //thread obj
+
+  firfilt_crcf qx; //filter for x channel
+  firfilt_crcf qy; //filter for y channel
+  firfilt_crcf qz; //filter for z channel
+
 
 };
