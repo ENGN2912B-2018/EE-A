@@ -17,13 +17,22 @@ using namespace Eigen;
  *    | z''   |
  */
 
-int main() {
+int main(int argc, char * argv[]) {
+
+    std::string inputfile = "../../embedded/trials/";
+    if(argc == 2) {
+      inputfile += argv[1];
+    } else {
+      inputfile += "stationary.csv";
+    }
+
+    std::cout << "writing output to: " << inputfile << std::endl;
 
    // Create file stream
    std::fstream file("../testing output files/kalman.csv", std::fstream::out);
    std::fstream gain("../testing output files/gain.dat", std::fstream::out);
    // Read in values from file
-   std::fstream data("../../embedded/trials/stationary.csv", std::fstream::in);
+   std::fstream data(inputfile, std::fstream::in);
    //std::fstream data("stationary_filtered.csv", std::fstream::in);
    // Time step (set by the accelerometer)
    float fs = 3200;
@@ -49,13 +58,13 @@ int main() {
    H << 1, 0, 0,
         0, 1, 0,
         0, 0, 1;
-   Q << 5, 0, 0,
-        0, 5, 0,
-        0, 0, 5;
+   Q << 5, .01, .3,
+        .01, 5, .31,
+        .3, .31, 5;
                       // In reality need to get value from some steady state
-   R << 8, 0, 0,
-        0, 8, 0,
-        0, 0, 8;
+   R << 1, 0, 0,
+        0, 1, 0,
+        0, 0, 1;
 
    // Kalman filter
    KalmanFilter kalman(0, F, H, Q, R, P_init);
@@ -80,6 +89,7 @@ int main() {
    // Ignore x,y,z line
    if(filtered == 'n') {
      data.ignore(10, '\n');
+     std::cout << "skipping first line" << std::endl;
    }
    std::cout << "iterations: ";
    std::cin >> test_len;
@@ -90,16 +100,17 @@ int main() {
    while(iter <= test_len) {
 
      // Read in acceleration for each direction
-     data.getline(buff, 10, ',');
+     data.getline(buff, 20, ',');
      z(0) = atof(buff);
-     data.getline(buff, 10, ',');
+     data.getline(buff, 20, ',');
      z(1) = atof(buff);
-     data.getline(buff, 10, '\n');
+     data.getline(buff, 20, '\n');
      z(2) = atof(buff);
 
      kalman.update(z);
      x_ = kalman.state();
 
+    /*
     K = kalman.gain();
     for(int r = 0; r < 3; r++) {
       for(int c = 0; c < 3; c++) {
@@ -110,6 +121,7 @@ int main() {
        }
       }
     }
+    */
 
     for(int i = 0; i < 3; i++){
      if(i == 2) {

@@ -100,11 +100,11 @@ int main() {
    while(iter <= test_len) {
 
      // Read in acceleration for each direction
-     data.getline(buff, 10, ',');
+     data.getline(buff, 20, ',');
      z(0) = atof(buff);
-     data.getline(buff, 10, ',');
+     data.getline(buff, 20, ',');
      z(1) = atof(buff);
-     data.getline(buff, 10, '\n');
+     data.getline(buff, 20, '\n');
      z(2) = atof(buff);
 
     kalman.update(z);
