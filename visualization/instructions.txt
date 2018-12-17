@@ -1,3 +1,6 @@
 The data visualization component of this project was compiled and built using Qt Creator, 
-the instructions for which will be outlined in the Readme. We chose to provide the executable file 
-(EEA_Data_Vis) in the build_qt_creator_project so that the graders may run it in linux with ease.
+the instructions for which will be outlined in the Readme. The two folders here underneath 
+the EE-A/visualization folder are the main Qt project folder containing the files we needed to run 
+our GUI in Qt and the automatically generated build folder that Qt creator generates when you choose
+to build. We chose to provide the executable file (EEA_Data_Vis) in the build_qt_creator_project so that 
+the graders may run it in linux with ease.
