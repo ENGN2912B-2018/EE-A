@@ -1,12 +1,10 @@
 #include <fstream>
 #include "kalman/kalman_.hpp"
 #include "embedded/ADXL345_threaded.h"
-#include "embedded/circularfifo_hazard_platform_dependent.hpp"
-#include "embedded/circularfifo_memory_relaxed_acquire_release.hpp"
 #include "embedded/circularfifo_memory_sequential_consistent.hpp"
 
 using namespace std;
-
+using namespace Eigen;
 int main() {
   // Files for output
   std::fstream accf("testing output files/acceleration.csv", std::fstream::out);
@@ -84,9 +82,9 @@ int main() {
 
      // Read in acceleration data from buffer
      float **results = acc.read(read_size);
-     z(1) = results[0][0];
-     z(2) = results[0][1];
-     z(3) = results[0][2];
+     z(0) = results[0][0];
+     z(1) = results[0][1];
+     z(2) = results[0][2];
 
      kalman.update(z);
      x_ = kalman.state();

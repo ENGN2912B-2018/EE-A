@@ -12,10 +12,11 @@ include_directories(src)
 add_subdirectory(src)
 # add_subdirectory(qt)
 
-find_library(bcm2835Lib NAMES bcm2835)
+find_library(bcm2835 NAMES bcm2835)
+find_library(pthread NAMES pthread)
 
 add_executable(spatial spatial.cpp)
-target_link_libraries(spatial adxlLib kalmanLib bcm2835Lib)
+target_link_libraries(spatial adxlLib kalmanLib bcm2835 pthread)
 
 set_target_properties(adxlLib PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(kalmanLib PROPERTIES LINKER_LANGUAGE CXX)

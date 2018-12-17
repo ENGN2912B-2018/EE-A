@@ -220,31 +220,3 @@ float* ADXL345::calibrate(int n){
 }
 
 
-int main(){
-  //instantiate accelerometer class
-  cout<<"class up"<<endl;
-  ADXL345 acc;
-
-  int num_samples = 0;
-
-  cout<<"Please enter desired number of samples (maximum is 500000): ";
-  cin>>num_samples;
-
-
-  //read_size (can be set lower than desired number of samples for batch ops  - if you need extra processing close to realtime)
-  int read_size = num_samples;
-
-  float* calibration = acc.calibrate(100);
-  cout<<calibration[0]<<", "<<calibration[1]<<", "<<calibration[2]<<endl;
-
-  //turn on the accelerometer and start adding to the queue
-  acc.start();
-
-  float **results = acc.read(read_size);
-
-  //loop through the results a couple times to test reading
-  for(int n = 0; n<read_size; n++){
-      cout<<results[n][0]<<" "<<results[n][1]<<" "<<results[n][2]<<endl;
-
-  }
-}
