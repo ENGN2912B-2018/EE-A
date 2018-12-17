@@ -17,7 +17,11 @@ using namespace memory_sequential_consistent;
 
 
 //multithreading method that pushes to the queue
+<<<<<<< HEAD
 void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf qy, firfilt_crcf qz, int* qcounter, bool *start_gate){
+=======
+void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf qy, firfilt_crcf qz){
+>>>>>>> 8d68d69dbb3d8c07a74acb0f14fd3bde6ea87cd2
 
   //wait for start gate
   while(!*start_gate){}
@@ -37,6 +41,7 @@ void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf 
     //collect data and push to the queue
     //wait for the start signal
 
+<<<<<<< HEAD
     cout<<"collection started"<<endl;
 
     #define DATA 0x32
@@ -65,6 +70,71 @@ void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf 
       float x_m = ((float)x_raw - 65536*(int)xb) * scale_factor;
       float y_m = ((float)y_raw - 65536*(int)yb) * scale_factor;
       float z_m = ((float)z_raw - 65536*(int)zb) * scale_factor;
+=======
+    //reconstruct the data correctly into floats
+    int x_raw = (read_xyz[2]<<8)|read_xyz[1];
+    int y_raw = (read_xyz[4]<<8)|read_xyz[3];
+    int z_raw = (read_xyz[6]<<8)|read_xyz[5];
+
+    bool xb = x_raw & 0x8000;
+    bool yb = y_raw & 0x8000;
+    bool zb = z_raw & 0x8000;
+
+    float scale_factor = 3.9*(9.8/1000);
+
+    //data in m/s/s
+    float x_m = ((float)x_raw - 65536*(int)xb) * scale_factor;
+    float y_m = ((float)y_raw - 65536*(int)yb) * scale_factor;
+    float z_m = ((float)z_raw - 65536*(int)zb) * scale_factor;
+
+    //low pass the output before q push
+    // complex<float> inx;
+    // complex<float> outx;
+    // complex<float> iny;
+    // complex<float> outy;
+    // complex<float> inz;
+    // complex<float> outz;
+    //
+    // // //filter x
+    // firfilt_crcf_push(qx, inx);    // push input sample
+    // firfilt_crcf_execute(qx,&outx); // compute output
+    //
+    // //filter x
+    // firfilt_crcf_push(qy, iny);    // push input sample
+    // firfilt_crcf_execute(qy,&outy); // compute output
+    //
+    // //filter x
+    // firfilt_crcf_push(qz, inz);    // push input sample
+    // firfilt_crcf_execute(qz,&outz); // compute output
+
+
+    //serially push x, y, z onto the q
+    queue->push(x_m);
+    queue->push(y_m);
+    queue->push(z_m);
+
+    // cout<<i<<": "<<x_m<<", "<<y_m<<", "<<z_m<<endl;
+
+
+  }
+}
+
+//constructor
+ADXL345::ADXL345(){
+  cout<<"constructor"<<endl;
+  //first, set up bcm stuff for spi
+  bcm2835_init();
+  //Setup SPI pins
+  bcm2835_spi_begin();
+  //Set CS pins polarity to low
+  bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, 0);
+  //Set SPI clock speed - http://www.airspayce.com/mikem/bcm2835/group__constants.html#gaf2e0ca069b8caef24602a02e8a00884e
+  bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_256);
+  //Set SPI data mode - http://www.airspayce.com/mikem/bcm2835/group__constants.html#ga8dd7bb496565324800130100e6bf6d86
+  bcm2835_spi_setDataMode(BCM2835_SPI_MODE3);
+  //Set with CS pin to use for next transfers
+  bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
+>>>>>>> 8d68d69dbb3d8c07a74acb0f14fd3bde6ea87cd2
 
       //low pass the output before q push
       // complex<float> inx;
@@ -87,6 +157,7 @@ void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf 
       // firfilt_crcf_execute(qz,&outz); // compute output
 
 
+<<<<<<< HEAD
       //serially push x, y, z onto the q
       queue->push(x_m);
       queue->push(y_m);
@@ -150,6 +221,36 @@ void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf 
 ADXL345::~ADXL345(){
   //
   start_gate = 1;
+=======
+  //set up filter
+
+  //read in taps
+  // ifstream taps_data("ftaps2.csv");
+  // int taps_length = 325;
+  // float taps[taps_length];
+  // char x[10000];
+  //
+  // for(int i=0; i<taps_length; i++){
+  //   taps_data.getline(x,10000,',');
+  //   float y = atof(x);
+  //   taps[i] = y;
+  //   // cout<<i<<": "<<y<<endl;
+  // }
+  //
+  // //instantiate filter with taps
+  // qx = firfilt_crcf_create(taps,taps_length);
+  // qy = firfilt_crcf_create(taps,taps_length);
+  // qz = firfilt_crcf_create(taps,taps_length);
+
+  //start collection thread
+  cout<<"starting thread"<<endl;
+  thread_obj = thread(thread_spi, &queue, qx, qy, qz);
+  // thread_obj.detach();
+
+}
+
+ADXL345::~ADXL345(){
+>>>>>>> 8d68d69dbb3d8c07a74acb0f14fd3bde6ea87cd2
   thread_obj.join();
 }
 
@@ -168,9 +269,12 @@ void ADXL345::start(){
 }
 
 float** ADXL345::read(int n){
+<<<<<<< HEAD
 
   //wait until the queue has at least 3*n samples
   while(qcounter<n*3){}
+=======
+>>>>>>> 8d68d69dbb3d8c07a74acb0f14fd3bde6ea87cd2
 
   // necessary variables
   float** out_data = new float*[n];
@@ -185,6 +289,7 @@ float** ADXL345::read(int n){
 
       if (false == queue.pop(m)) {cout<<"q empty!"<<endl; break;}
       else{
+<<<<<<< HEAD
         qcounter-=1; //decrement the qeueu counter
         out_data[i][j] = m;
       }
@@ -203,6 +308,11 @@ float* ADXL345::calibrate(int n){
   float xc = 0;
   float yc = 0;
   float zc = 0;
+=======
+        out_data[i][j] = m;
+      }
+    }
+>>>>>>> 8d68d69dbb3d8c07a74acb0f14fd3bde6ea87cd2
 
   //read spi
   //check if in correct power mode, if not: set
@@ -216,6 +326,7 @@ float* ADXL345::calibrate(int n){
     bcm2835_spi_transfern(&write_powerctl[0], 2);
   }
 
+<<<<<<< HEAD
   cout<<"calibration started"<<endl;
 
   #define DATA 0x32
@@ -255,6 +366,11 @@ float* ADXL345::calibrate(int n){
   xc /= n;
   yc /= n;
   zc /= n;
+=======
+
+  return out_data;
+}
+>>>>>>> 8d68d69dbb3d8c07a74acb0f14fd3bde6ea87cd2
 
   //set the out array
   calibration_out[0] = xc;
@@ -274,11 +390,25 @@ int main(){
   int read_size = 10;
 
 
+<<<<<<< HEAD
   float* calibration = acc.calibrate(100);
   cout<<calibration[0]<<", "<<calibration[1]<<", "<<calibration[2]<<endl;
 
   //turn on the accelerometer and start adding to the queue
   acc.start();
+=======
+  //wait a second
+  for(int i=0;i<10000000; i++){
+
+  }
+
+  float **results = acc.read(read_size);
+
+  // //loop through the results a couple times to test reading
+  for(int n = 0; n<read_size; n++){
+      cout<<results[n][0]<<" "<<results[n][1]<<" "<<results[n][2]<<endl;
+  }
+>>>>>>> 8d68d69dbb3d8c07a74acb0f14fd3bde6ea87cd2
 
 
 

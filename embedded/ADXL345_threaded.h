@@ -23,7 +23,10 @@ public:
   //data methods
   void start(); //starts recording to the buffer and low passes
   float** read(int n); //pulls a n long chunk of samples
+<<<<<<< HEAD
   float* calibrate(int n);
+=======
+>>>>>>> 8d68d69dbb3d8c07a74acb0f14fd3bde6ea87cd2
 
   //variables
   int qcounter = 0;
