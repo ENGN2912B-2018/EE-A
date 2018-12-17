@@ -23,7 +23,7 @@
 #include <vector>
 #include <cmath>
 #include "numerical.hpp"
-#include "../eigen/Eigen/Dense"
+#include "../Eigen/Dense"
 
 class KalmanFilter {
 public:

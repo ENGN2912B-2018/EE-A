@@ -1,3 +1,4 @@
+#include <fstream>
 #include "kalman/kalman_.hpp"
 #include "embedded/ADXL345_threaded.h"
 #include "embedded/circularfifo_hazard_platform_dependent.hpp"
@@ -7,6 +8,10 @@
 using namespace std;
 
 int main() {
+  // Files for output
+  std::fstream accf("testing output files/acceleration.csv", std::fstream::out);
+  std::fstream velf("testing output files/velocity.csv", std::fstream::out);
+  std::fstream posf("testing output files/position.csv", std::fstream::out);
   // Time step (set by the accelerometer)
   float fs = 3200;
   float step = 1/fs;
@@ -56,13 +61,24 @@ int main() {
   //turn on the accelerometer and start adding to the queue
   acc.start();
 
-  VectorXd z(3);               // Temporary container for x,y,z acceleration
-  VectorXd x_(3);              // Temporary container for x,y,z acceleration
-  bool stop = false;
+  VectorXd vel_sum(3);
+  VectorXd pos_sum(3);
+  VectorXd vel(3);          // Temporary container for x,y,z velocity
+  VectorXd vel_prev(3);     // Temporary container for x,y,z velocity
+  VectorXd pos(3);          // Temporary container for x,y,z position
+  VectorXd z(3);            // Temporary container for x,y,z acceleration
+  VectorXd x_prev(3);       // Temporary container for x,y,z acceleration
+  VectorXd x_(3);           // Temporary container for x,y,z acceleration
 
   int iter = 0;                // for testing; tracks iterations
   int test_len = 30000;        // for testing; max number of iterations
   char * buff = new char[10];  // for testing;
+
+  vel << 0, 0, 0;
+  vel_prev << 0, 0, 0;
+  x_prev << 0, 0, 0;
+  vel_sum << 0, 0, 0;
+  pos_sum << 0, 0, 0;
 
   while(iter <= num_samples) {
 
@@ -75,8 +91,29 @@ int main() {
      kalman.update(z);
      x_ = kalman.state();
 
-    // Increment
-    iter++;
+     vel = 0.5*step*(x_prev+x_);
+     pos = 0.5*step*(vel_prev+vel);
+
+     vel_sum += vel;
+     pos_sum += pos;
+
+     // Numerical integration
+     for(int i = 0; i < 3; i++){
+      if(i == 2) {
+        accf << x_(i) << std::endl;
+        velf << vel_sum(i) << std::endl;
+        posf << pos_sum(i) << std::endl;
+      } else {
+        accf << x_(i) << ", ";
+        velf << vel_sum(i) << ", ";
+        posf << pos_sum(i) << ", ";
+       }
+     }
+    x_prev = x_;
+    vel_prev = vel;
+
+
+    iter++; // Increment
   }
 
   return 0;
