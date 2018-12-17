@@ -7,9 +7,9 @@ using namespace std;
 using namespace Eigen;
 int main() {
   // Files for output
-  std::fstream accf("testing output files/acceleration.csv", std::fstream::out);
-  std::fstream velf("testing output files/velocity.csv", std::fstream::out);
-  std::fstream posf("testing output files/position.csv", std::fstream::out);
+  std::fstream accf("acceleration.csv", std::fstream::out);
+  std::fstream velf("velocity.csv", std::fstream::out);
+  std::fstream posf("position.csv", std::fstream::out);
   // Time step (set by the accelerometer)
   float fs = 3200;
   float step = 1/fs;
@@ -42,7 +42,7 @@ int main() {
 
   // Kalman filter
   KalmanFilter kalman(0, F, H, Q, R, P_init);
-
+  kalman.init(0, x_init);
   // Instantiate accelerometer class
   ADXL345 acc;
 
@@ -113,6 +113,9 @@ int main() {
 
     iter++; // Increment
   }
-
+  
+  accf.close();
+  velf.close();
+  posf.close();
   return 0;
 }
