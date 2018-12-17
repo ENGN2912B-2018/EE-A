@@ -4,6 +4,8 @@
 #include "embedded/circularfifo_memory_relaxed_acquire_release.hpp"
 #include "embedded/circularfifo_memory_sequential_consistent.hpp"
 
+using namespace std;
+
 int main() {
   // Time step (set by the accelerometer)
   float fs = 3200;
@@ -38,7 +40,44 @@ int main() {
   // Kalman filter
   KalmanFilter kalman(0, F, H, Q, R, P_init);
 
+  // Instantiate accelerometer class
+  ADXL345 acc;
 
+  //read_size (can be set lower than desired number of samples for batch ops  - if you need extra processing close to realtime)
+  int read_size = 1;
+  int num_samples = 0;
+  cout << "Please enter desired number of samples (maximum is 500000): ";
+  cin >> num_samples;
+
+  // Calibrate
+  float* calibration = acc.calibrate(100);
+  cout << calibration[0] << ", " << calibration[1] << ", " << calibration[2] << endl;
+
+  //turn on the accelerometer and start adding to the queue
+  acc.start();
+
+  VectorXd z(3);               // Temporary container for x,y,z acceleration
+  VectorXd x_(3);              // Temporary container for x,y,z acceleration
+  bool stop = false;
+
+  int iter = 0;                // for testing; tracks iterations
+  int test_len = 30000;        // for testing; max number of iterations
+  char * buff = new char[10];  // for testing;
+
+  while(iter <= num_samples) {
+
+     // Read in acceleration data from buffer
+     float **results = acc.read(read_size);
+     z(1) = results[0][0];
+     z(2) = results[0][1];
+     z(3) = results[0][2];
+
+     kalman.update(z);
+     x_ = kalman.state();
+
+    // Increment
+    iter++;
+  }
 
   return 0;
 }
