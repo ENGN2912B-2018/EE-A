@@ -17,12 +17,20 @@ using namespace Eigen;
  *    | z''  |
  */
 
-int main() {
+int main(int argc, char * argv[]) {
+
+  std::string inputfile = "../../embedded/trials/";
+  if(argc == 2) {
+    inputfile += argv[1];
+  } else {
+    inputfile += "stationary.csv";
+  }
+
    // Create file stream
    std::fstream gain("../testing output files/gain.dat", std::fstream::out);
    std::fstream file("../testing output files/kalman.csv", std::fstream::out);
    // Read in values from file
-   std::fstream data("../../embedded/trials/straight_return.csv", std::fstream::in);
+   std::fstream data(inputfile, std::fstream::in);
    //std::fstream data("stationary_filtered.csv", std::fstream::in);
    // Time step (set by the accelerometer)
    float fs = 3200;

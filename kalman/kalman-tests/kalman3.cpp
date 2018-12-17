@@ -8,8 +8,6 @@
 //using namespace std;
 using namespace Eigen;
 
-// !**-->  All matricies have fixed size, eventually should change them to fixed size for Eigen!!!!!
-
 // State is defined as position, velocity and acceleration on 3D axis
 /*
  *    | x''   |
@@ -33,7 +31,6 @@ int main(int argc, char * argv[]) {
    std::fstream gain("../testing output files/gain.dat", std::fstream::out);
    // Read in values from file
    std::fstream data(inputfile, std::fstream::in);
-   //std::fstream data("stationary_filtered.csv", std::fstream::in);
    // Time step (set by the accelerometer)
    float fs = 3200;
    float step = 1/fs;
@@ -58,11 +55,10 @@ int main(int argc, char * argv[]) {
    H << 1, 0, 0,
         0, 1, 0,
         0, 0, 1;
-   Q << 5, .01, .3,
-        .01, 5, .31,
-        .3, .31, 5;
-                      // In reality need to get value from some steady state
-   R << 1, 0, 0,
+   Q << .0002, 0, 0,
+        0, .0002, 0,
+        0, 0, .0002;
+   R << 1, 0, 0,    // In reality need to get value from some steady state
         0, 1, 0,
         0, 0, 1;
 
@@ -99,37 +95,34 @@ int main(int argc, char * argv[]) {
    // Stop when 'a' key pressed
    while(iter <= test_len) {
 
-     // Read in acceleration for each direction
-     data.getline(buff, 20, ',');
-     z(0) = atof(buff);
-     data.getline(buff, 20, ',');
-     z(1) = atof(buff);
-     data.getline(buff, 20, '\n');
-     z(2) = atof(buff);
+      // Read in acceleration for each direction
+      data.getline(buff, 20, ',');
+      z(0) = atof(buff);
+      data.getline(buff, 20, ',');
+      z(1) = atof(buff);
+      data.getline(buff, 20, '\n');
+      z(2) = atof(buff);
 
-     kalman.update(z);
-     x_ = kalman.state();
+      kalman.update(z);
+      x_ = kalman.state();
 
-    /*
-    K = kalman.gain();
-    for(int r = 0; r < 3; r++) {
-      for(int c = 0; c < 3; c++) {
-        if(c == 2 && r == 2) {
-           gain << K(r,c) << std::endl;
-        } else {
-           gain << K(r,c) << ", ";
-       }
+      K = kalman.gain();
+      for(int r = 0; r < 3; r++) {
+        for(int c = 0; c < 3; c++) {
+          if(c == 2 && r == 2) {
+             gain << K(r,c) << std::endl;
+          } else {
+             gain << K(r,c) << ", ";
+         }
+        }
       }
-    }
-    */
-
-    for(int i = 0; i < 3; i++){
-     if(i == 2) {
-       file << x_(i) << std::endl;
-     } else {
-       file << x_(i) << ", ";
+      for(int i = 0; i < 3; i++){
+       if(i == 2) {
+         file << x_(i) << std::endl;
+       } else {
+         file << x_(i) << ", ";
+        }
       }
-    }
 
      // testing
      iter++;
