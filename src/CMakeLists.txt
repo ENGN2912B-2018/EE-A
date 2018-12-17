@@ -8,6 +8,5 @@ else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif ()
 
-add_library(kalmanLib kalman_.hpp)
-
-set_target_properties(kalmanLib PROPERTIES LINKER_LANGUAGE CXX)
+add_subdirectory(embedded)
+add_subdirectory(kalman)
