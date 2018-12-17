@@ -112,7 +112,6 @@ int main() {
     x_prev = x_;
     vel_prev = vel;
 
-
     iter++; // Increment
   }
 
