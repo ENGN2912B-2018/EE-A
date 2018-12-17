@@ -2,6 +2,9 @@
 #include <iostream>
 #include <bitset>
 #include <fstream>
+#include <complex>
+#include <vector>
+#include <liquid/liquid.h>
 
 using namespace std;
 
@@ -54,7 +57,7 @@ int main(){
   #define RATE 0x0F
   char set_data_rate[] = {WRITE_SINGLE|BW_RATE, RATE};
   bcm2835_spi_transfern(&set_data_rate[0], 2);
-  cout<<"rate set to 1600 hz"<<endl;
+  cout<<"rate set to 3200 hz"<<endl;
 
   //set data format to be left justified
   #define DATA_FORMAT 0x31
@@ -77,7 +80,13 @@ int main(){
 
   out_file<<"x,y,z"<<endl;
 
-  while(1){
+  //set up an array for the output to be sent to filtered
+  vector<vector<float>> output_data;
+
+  int time_end = 10000; //# of seconds * spi rate
+
+
+  for(int n = 0; n<time_end; n++){
     char read_xyz[] = {READ_MULTI|DATA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     bcm2835_spi_transfern(&read_xyz[0], 7);
 
@@ -98,21 +107,105 @@ int main(){
     float y = ((float)y_raw - 65536*(int)yb) * scale_factor;
     float z = ((float)z_raw - 65536*(int)zb) * scale_factor;
 
-
-
-    // convert to m/s^2 - default range is +-2g
-    //so 0 = -2g, 2^10  = 2g
-    // float newx = ((float)x/512)*(4*9.8) - (2*9.8);
-    // float newy = ((float)y/512)*(4*9.8) - (2*9.8);
-    // float newz = ((float)z/512)*(4*9.8) - (2*9.8);
-
     //write to out_file
     out_file<<x<<","<<y<<","<<z<<endl;
-    cout<<x<<","<<y<<","<<z<<endl;
-    // cout<<newx<<","<<newy<<","<<newz<<endl;
-    // cout<<(float)x/1024<<","<<(float)y/1024<<","<<(floatz/1024<<endl;
+    // cout<<x<<","<<y<<","<<z<<endl;
 
+    // save to output vector
+    vector<float> output_array = {x, y, z};
+
+    // cout<<output_array[0]<<endl;
+
+    output_data.push_back(output_array);
 
   }
+
+  //check output data
+  for(int n = 0; n<output_data.size(); n++){
+    // cout<<output_data[n][0]<<endl;
+  }
+
+
+  // lowpass filter
+  //read taps in
+  ifstream taps_data("ftaps2.csv");
+  int taps_length = 91;
+  float taps[taps_length];
+  char x[10000];
+
+  for(int i=0; i<taps_length; i++){
+    taps_data.getline(x,100001,',');
+    float y = atof(x);
+    taps[i] = y;
+    // cout<<i<<": "<<y<<endl;
+  }
+
+
+  // create output array
+  // complex<float> output[output_data.size()];
+  vector<complex<float>> filtered(3*output_data.size());
+
+  // create filter object
+  firfilt_crcf q = firfilt_crcf_create(taps,taps_length);
+
+  //filter x
+  for(int x = 0; x<output_data.size(); x++){
+    complex<float> in = output_data[x][0];    // input sample
+    complex<float> out;    // output sample
+    // complex<float> in;// = signal[n];    // input sample
+    // complex<float> out;// = output[n];    // output sample
+    // cout<<in<<endl;
+
+    firfilt_crcf_push(q, in);    // push input sample
+    firfilt_crcf_execute(q,&out); // compute output
+
+    // cout <<out;
+
+    filtered[x] = out;
+  }
+
+  //filter y
+  for(int y = 0; y<output_data.size(); y++){
+    complex<float> in = output_data[y][1];    // input sample
+    complex<float> out;    // output sample
+    // complex<float> in;// = signal[n];    // input sample
+    // complex<float> out;// = output[n];    // output sample
+    // cout<<in<<endl;
+
+    firfilt_crcf_push(q, in);    // push input sample
+    firfilt_crcf_execute(q,&out); // compute output
+
+    // cout <<out;
+
+    filtered[y+output_data.size()] = out;
+  }
+
+  //filter z
+  for(int z = 0; z<output_data.size(); z++){
+    complex<float> in = output_data[z][2];    // input sample
+    complex<float> out;    // output sample
+    // complex<float> in;// = signal[n];    // input sample
+    // complex<float> out;// = output[n];    // output sample
+    // cout<<in<<endl;
+
+    firfilt_crcf_push(q, in);    // push input sample
+    firfilt_crcf_execute(q,&out); // compute output
+
+    // cout <<out;
+
+    filtered[z+2*output_data.size()] = out;
+  }
+
+  // destroy filter object
+  firfilt_crcf_destroy(q);
+
+  //save
+  ofstream writer("filtered.csv");
+  for(int j = 0; j< output_data.size(); j++){
+    // cout<<output.real()<<endl;
+    writer<<filtered[j].real()<<","<<filtered[j+output_data.size()].real()<<","<<filtered[j+2*output_data.size()].real()<<endl;
+  }
+
+
   return 0;
 }
