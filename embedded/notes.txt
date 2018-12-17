@@ -1,0 +1,3 @@
+set left justify bit
+get the numbers right
+figure out the scaling
