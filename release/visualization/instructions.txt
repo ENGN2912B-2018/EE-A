@@ -1,0 +1,3 @@
+The data visualization component of this project was compiled and built using Qt Creator, 
+the instructions for which will be outlined in the Readme. We chose to provide the executable file 
+in the release folder so that the graders may run it in linux with ease. 
