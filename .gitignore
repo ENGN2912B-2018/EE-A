@@ -7,3 +7,4 @@ kalman2.cpp
 kalman-cpp-master
 csv.*
 build
+Eigen
