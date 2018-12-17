@@ -1,10 +1,9 @@
 #include "kalman/kalman_.hpp"
 #include "embedded/ADXL345_threaded.h"
-#include "embedded/circularfifo_hazard_platform_dependent.hpp"
-#include "embedded/circularfifo_memory_relaxed_acquire_release.hpp"
 #include "embedded/circularfifo_memory_sequential_consistent.hpp"
 
 using namespace std;
+using namespace Eigen;
 
 int main() {
   // Time step (set by the accelerometer)
