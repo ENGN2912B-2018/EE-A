@@ -83,7 +83,7 @@ int main(){
   //set up an array for the output to be sent to filtered
   vector<vector<float>> output_data;
 
-  int time_end = 10000; //# of seconds * spi rate
+  int time_end = 500000; //# of seconds * spi rate
 
 
   for(int n = 0; n<time_end; n++){

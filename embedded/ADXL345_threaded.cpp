@@ -3,7 +3,6 @@
 #include <thread>
 #include <complex>
 #include <vector>
-#include <liquid/liquid.h>
 #include <fstream>
 
 
@@ -17,7 +16,7 @@ using namespace memory_sequential_consistent;
 
 
 //multithreading method that pushes to the queue
-void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf qy, firfilt_crcf qz, int* qcounter, bool *start_gate){
+void thread_spi(CircularFifo<float, 500000> *queue, int* qcounter, bool *start_gate){
 
   //wait for start gate
   while(!*start_gate){}
@@ -66,26 +65,6 @@ void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf 
       float y_m = ((float)y_raw - 65536*(int)yb) * scale_factor;
       float z_m = ((float)z_raw - 65536*(int)zb) * scale_factor;
 
-      //low pass the output before q push
-      // complex<float> inx;
-      // complex<float> outx;
-      // complex<float> iny;
-      // complex<float> outy;
-      // complex<float> inz;
-      // complex<float> outz;
-      //
-      // // //filter x
-      // firfilt_crcf_push(qx, inx);    // push input sample
-      // firfilt_crcf_execute(qx,&outx); // compute output
-      //
-      // //filter x
-      // firfilt_crcf_push(qy, iny);    // push input sample
-      // firfilt_crcf_execute(qy,&outy); // compute output
-      //
-      // //filter x
-      // firfilt_crcf_push(qz, inz);    // push input sample
-      // firfilt_crcf_execute(qz,&outz); // compute output
-
 
       //serially push x, y, z onto the q
       queue->push(x_m);
@@ -121,29 +100,9 @@ void thread_spi(CircularFifo<float, 1000> *queue, firfilt_crcf qx, firfilt_crcf 
     char set_fifo[] = {WRITE_SINGLE|FIFO_CTL, MODE_1};
     bcm2835_spi_transfern(&set_fifo[0], 2);
 
-    //set up filter
-
-    //read in taps
-    // ifstream taps_data("ftaps2.csv");
-    // int taps_length = 325;
-    // float taps[taps_length];
-    // char x[10000];
-    //
-    // for(int i=0; i<taps_length; i++){
-    //   taps_data.getline(x,10000,',');
-    //   float y = atof(x);
-    //   taps[i] = y;
-    //   // cout<<i<<": "<<y<<endl;
-    // }
-    //
-    // //instantiate filter with taps
-    // qx = firfilt_crcf_create(taps,taps_length);
-    // qy = firfilt_crcf_create(taps,taps_length);
-    // qz = firfilt_crcf_create(taps,taps_length);
-
     //start collection thread
     cout<<"spinning up thread"<<endl;
-    thread_obj = thread(thread_spi, &queue, qx, qy, qz, &qcounter, &start_gate);
+    thread_obj = thread(thread_spi, &queue, &qcounter, &start_gate);
     // thread_obj.detach();
   }
 
@@ -160,11 +119,6 @@ void ADXL345::start(){
   start_gate = 1;
   cout<<"start_gate toggled"<<endl;
 
-  // create thread and pass buffer and length to it
-  // thread thread_obj(thread_spi, &queue);
-
-  // check the output
-  // thread_obj.join();
 }
 
 float** ADXL345::read(int n){
@@ -271,8 +225,14 @@ int main(){
   cout<<"class up"<<endl;
   ADXL345 acc;
 
-  int read_size = 10;
+  int num_samples = 0;
 
+  cout<<"Please enter desired number of samples (maximum is 500000): ";
+  cin>>num_samples;
+
+
+  //read_size (can be set lower than desired number of samples for batch ops  - if you need extra processing close to realtime)
+  int read_size = num_samples;
 
   float* calibration = acc.calibrate(100);
   cout<<calibration[0]<<", "<<calibration[1]<<", "<<calibration[2]<<endl;
@@ -280,21 +240,11 @@ int main(){
   //turn on the accelerometer and start adding to the queue
   acc.start();
 
+  float **results = acc.read(read_size);
 
+  //loop through the results a couple times to test reading
+  for(int n = 0; n<read_size; n++){
+      cout<<results[n][0]<<" "<<results[n][1]<<" "<<results[n][2]<<endl;
 
-
-  for(int i =0; i<4; i++){
-    cout<<"read #"<<i<<endl;
-
-    float **results = acc.read(read_size);
-
-    //loop through the results a couple times to test reading
-    for(int n = 0; n<read_size; n++){
-        cout<<results[n][0]<<" "<<results[n][1]<<" "<<results[n][2]<<endl;
-    }
- }
-//
-//
-//
-//
+  }
 }
