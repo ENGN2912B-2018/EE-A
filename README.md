@@ -4,11 +4,11 @@
 </p>
 
 ## Embedded Electronics, Group A
-Team: Kevin Anderson (kevin_anderson@brown.edu, Michael Caplan (michael_caplan@brown.edu), Yale Friend (yale_friend@brown.edu), Evan Pandya (evan_pandya@brown.edu)
+**Team:** Kevin Anderson (kevin_anderson@brown.edu), Michael Caplan (michael_caplan@brown.edu), Yale Friend (yale_friend@brown.edu), Evan Pandya (evan_pandya@brown.edu)
 
-Organization: Brown University, ENGN2912B: Scientific Programming in C++
+**Organization:** Brown University, ENGN2912B: Scientific Programming in C++
 
-Date(s) of Submission: 12/16/18 (Code repository), 12/18/18 (Completed README.md)
+**Date(s) of Submission:** 12/16/18 (Code repository), 12/18/18 (Completed README.md)
 
 ## Introduction
 This documentation should provide 1) an introduction and technical overview of the project for new users, 2) detailed step-by-step instructions on how to build the project on the CCV (or other platform, as appropriate), and 3) instructions explaining how to run your program with example input and expected output.
