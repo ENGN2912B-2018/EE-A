@@ -19,8 +19,18 @@ This software provides two tools which may be used in a complementary fashion. F
 To install the software on the raspberry pi:
 
 `
-fuck
+git clone https://github.com/ENGN2912B-2018/EE-A/
+cd EE-A
+mkdir build; cd build
+cmake ..
+make
 `
+This will output an executable called spatial, which can be run by
+`
+sudo ./spatial
+`
+Note: sudo is important, otherwise you will get a "segmentation fault" error.
+
 
 ## Project Overview
 ## Goals and Objectives 
