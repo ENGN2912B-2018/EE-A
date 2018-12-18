@@ -1,7 +1,6 @@
 # Embedded Spatial Tracking with Kalman Filtering
-
+![alt text](https://www.brown.edu/academics/engineering/sites/brown.edu.academics.engineering/themes/engineering/img/brown-engineering-logo.png "Brown School of Engineering Logo")
 ## Embedded Electronics, Group A
-![alt text](https://www.brown.edu/academics/engineering/sites/brown.edu.academics.engineering/themes/engineering/img/brown-engineering-logo.png "Brown Crest")
 Team: Kevin Anderson (kevin_anderson@brown.edu, Michael Caplan (michael_caplan@brown.edu), Yale Friend(yale_friend@brown.edu), Evan Pandya (evan_pandya@brown.edu)
 
 Organization: Brown University, ENGN2912B: Scientific Programming in C++
