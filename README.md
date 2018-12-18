@@ -16,6 +16,11 @@ Your build instructions must list any dependencies:  What software libraries and
 #### Basic Description of Software Use
 This software provides two tools which may be used in a complementary fashion. First, we provide a software package targeted at a raspberry pi connected to an ADXL345 accelerometer. This will allow the user to input a number of samples to be collected from the accelerometer. The accelerometer runs at 3200 Hz, and each sample is collected in an internal 32 level FIFO, before being read by the raspberry pi over SPI. This software runs the samples through a Kalman filter and numerical integration to filter out error and get velocity and position from acceleration data. Then our software outputs the raw data collected from the accelerometer and the Kalman filtered data in two separate .csv files. The files can then be loaded into the GUI and analyzed. 
 #### Installation/Quickstart Guide
+To install the software on the raspberry pi:
+
+`
+fuck
+`
 
 ## Project Overview
 ## Goals and Objectives 
