@@ -11,11 +11,17 @@
 **Date(s) of Submission:** 12/16/18 (Code repository), 12/18/18 (Completed README.md)
 
 ## Introduction
-This documentation should provide 1) an introduction and technical overview of the project for new users, 2) detailed step-by-step instructions on how to build the project on the CCV (or other platform, as appropriate), and 3) instructions explaining how to run your program with example input and expected output.
-Your build instructions must list any dependencies:  What software libraries and versions are required to run?  For the CCV, include your .modules file in the repository so it can simply be loaded before compiling with CMake and GCC.
-#### Basic Description of Software Use
 This software provides two tools which may be used in a complementary fashion. First, we provide a software package targeted at a raspberry pi connected to an ADXL345 accelerometer. This will allow the user to input a number of samples to be collected from the accelerometer. The accelerometer runs at 3200 Hz, and each sample is collected in an internal 32 level FIFO, before being read by the raspberry pi over SPI. This software runs the samples through a Kalman filter and numerical integration to filter out error and get velocity and position from acceleration data. Then our software outputs the raw data collected from the accelerometer and the Kalman filtered data in two separate .csv files. The files can then be loaded into the GUI and analyzed. 
-#### Installation/Quickstart Guide
+
+
+## Project Overview
+## Goals and Objectives 
+## Software Architectural Design
+#### Required External Libraries
+#### Functional Block Diagrams 
+#### Data Flow Diagrams
+#### Interface Descriptions
+#### Installing Kalman Filter/Accelerometer Interface
 To install the software on the raspberry pi:
 
 ```
@@ -31,14 +37,8 @@ This will output an executable called spatial, which can be run by
 ```
 Note: sudo is important, otherwise you will get a "segmentation fault" error.
 
+For installing the GUI, see the later 
 
-## Project Overview
-## Goals and Objectives 
-## Software Architectural Design
-#### Required External Libraries
-#### Functional Block Diagrams 
-#### Data Flow Diagrams
-#### Interface Descriptions
 #### Graphical Interface/Data Visualization 
 In order to graphically display the position data before and after Kalman filtering, we created a Graphical User Interface (GUI) in Qt Creator version 5.10.1. Our GUI allows the user to read in a .csv file containing raw, 3 dimensional position data (units: m), specify the sampling rate, and display the axial position (x, y, or z, based on user selection) of the tracked object against time (unit: s). In addition to te aforementioned 2-dimensional plots, our data visualization application can also generate a 3-dimensional scatter plot that shows the x, y, and z points in space to give the user a sense for where the object has moved over the course of the movement trial. Detailed instructions for running our GUI can are located under the "Instructions for Compiling and Running the Software" section of the README. 
 #### Communication Protocols 
