@@ -1,5 +1,10 @@
 # Embedded Spatial Tracking with Kalman Filtering
+<p align="center">
+  <img src="https://www.brown.edu/academics/engineering/sites/brown.edu.academics.engineering/themes/engineering/img/brown-engineering-logo.png" alt="Brown School of Engineering Logo"/>
+</p>
+
 ![alt text](https://www.brown.edu/academics/engineering/sites/brown.edu.academics.engineering/themes/engineering/img/brown-engineering-logo.png "Brown School of Engineering Logo")
+
 ## Embedded Electronics, Group A
 Team: Kevin Anderson (kevin_anderson@brown.edu, Michael Caplan (michael_caplan@brown.edu), Yale Friend(yale_friend@brown.edu), Evan Pandya (evan_pandya@brown.edu)
 
@@ -31,9 +36,10 @@ Description of potential future software expansions and software features
 #### Author Contributions 
 | Software contribution       | Author          | 
 | ------------- |:-------------:|
-| col 3 is      | right-aligned | 
-| col 2 is      | centered      |  
-| zebra stripes | are neat      |   
+| a      | a | 
+| b      | b      |  
+| c | c      |  
+| d |d
 
 
 
