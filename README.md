@@ -18,7 +18,8 @@ Your build instructions must list any dependencies:  What software libraries and
 
 ## Software Architectural Design
 #### Required External Libraries
-#### Functional Block Diagrams 
+#### Functional Block Diagrams
+![alt text](https://raw.githubusercontent.com/evanpandya/ENGN2912-B-2018/EE-A/master/images/block_diagram.png)
 #### Data Flow Diagrams
 #### UML Diagrams showing Object Definition/Inheritance
 ## Interface Descriptions
