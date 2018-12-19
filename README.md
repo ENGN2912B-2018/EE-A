@@ -70,7 +70,7 @@ Description of potential future software expansions and software features
 | d | d |
 
 
-
+[Contribution guidelines for this project](images/block_diagram.PNG)
 
 
 
