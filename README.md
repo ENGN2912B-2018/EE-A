@@ -21,25 +21,25 @@ Tracking spatial position has become increasingly cheap with the advent of more 
 In this project, we apply Kalman filtering techniques on ADXL345 accelerometer data to perform spatial position tracking on a low-power embedded system, namely a Raspberry Pi. 
 
 ## Goals and Objectives
-⋅⋅* Estimate the position of system 
-⋅⋅* Generate user-friendly interactive visualization
-⋅⋅* Develop Kalman filter with efficient C++ library (Eigen)
-⋅⋅* Establish SPI communication between Raspberry Pi and Accelerometer
++ Estimate the position of system 
++ Generate user-friendly interactive visualization
++ Develop Kalman filter with efficient C++ library (Eigen)
++ Establish SPI communication between Raspberry Pi and Accelerometer
 
 ## Software Architectural Design
 #### Required External Libraries
 - _**SPI**_ 
-- _**BCM2835**
-- _**pthread**  
-- _**Qt Creator** + _**Qt Data Visualization Library**
-- _**QCustomPlot**  
-- _**Eigen**  
-- _**Liquid SDR** *(deprecated)*  
+- _**BCM2835**_
+- _**pthread**_  
+- _**Qt Creator**_ + _**Qt Data Visualization Library**_
+- _**QCustomPlot**_ 
+- _**Eigen**_
+- _**Liquid SDR**_ *(deprecated)*  
 
 #### Functional Block Diagrams 
 [Software Architecture Block Diagram](images/block_diagram.PNG)
 #### Data Flow Diagrams
-[Software Architecture Block Diagram](images/)
+[Software Architecture Block Diagram](images/data_flow.PNG)
 #### Interface Descriptions
 The ADXL345 class is responsible for interfacing with the accelerometer.
 There are 3 main public methods:
@@ -77,9 +77,9 @@ Threading was necessary because we want to do data processing at the same time a
 In order to make our system more robust, we implemented exception handling in our graphical user interface. The GUI checks to make sure that the .csv file that the user inputs is valid and if not, prompts the user to input a different one. We also designed the GUI so that the user must write a valid .csv file name, choose a sampling rate, and specify which axis to display *before* plotting occurs. 
 ## Testing and Evaluation 
 #### OS and Compiler/Library Versions Tested
-⋅⋅* GCC (4.8 or later)
-⋅⋅* Linux (Raspbian and Debian)
-⋅⋅* Windows 10 (Kalman)
++ GCC (4.8 or later)
++ Linux (Raspbian and Debian)
++ Windows 10 (Kalman)
 #### Description of Functional Testing to date
 Generated MATLAB scripts for quick visualization of reported data from acceleration for different state size. There is also a MATLAB script which performs the numerical integration on the filtered acceleration data using MATLAB’s built-in functions for comparison to C++. The MATLAB testing scripts are placed in a folder named MATLAB.
 implementation
