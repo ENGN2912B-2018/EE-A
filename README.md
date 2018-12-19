@@ -44,9 +44,9 @@ There are 3 main public methods:
 
 | Method   | Description   |
 | ------------- |:-------------:|
-| float* ADXL345::calibrate(int n) | This returns an array of length 3, which contains a time average over _n_ samples of each axis.  |
+| float* ADXL345::calibrate(int n) | This returns an array of length 3, which contains a time average over *n* samples of each axis.  |
 | void ADXL345::start() |  This sets a start flag which starts the queue in a separate thread and starts collecting samples from the accelerometer over SPI. |
-| float** ADXL345::read(int n) | This method can be used in 2 ways. First, you can set _n_ to be the length of the queue, and then collect all your samples after the queue fills up. Second, you can set n to be less than the length of the queue and pop data off the queue in chunks. This is the way that we use the method in spatial.cpp: we read in chunks of 1, so that each data point can be filtered and integrated before moving to the next. |
+| float** ADXL345::read(int n) | This method can be used in 2 ways. First, you can set *n* to be the length of the queue, and then collect all your samples after the queue fills up. Second, you can set *n* to be less than the length of the queue and pop data off the queue in chunks. This is the way that we use the method in spatial.cpp: we read in chunks of 1, so that each data point can be filtered and integrated before moving to the next. |
 
 #### Installing Kalman Filter/Accelerometer Interface
 To install the software on the raspberry pi:
