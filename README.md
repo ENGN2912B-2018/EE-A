@@ -111,10 +111,10 @@ Perhaps our biggest future goal lies is the modification and enhancement of the 
 
 | Software contribution       | Author          | 
 | ------------- |:-------------:|
-| Evan Pandya | GUI | 
+| Kevin Anderson |  Kalman Filtering & Numerical Integration | 
+| Michael Caplan | Embedded Software & Accelerometer Communication |  
 | Yale Friend | GUI & Embedded Software |  
-| Kevin Anderson | Kalman Filtering & Numerical Integration |  
-| Michael Caplan | Embedded Software & Accelerometer Communication |
+| Evan Pandya | GUI |
 
 
 
