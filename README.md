@@ -11,8 +11,7 @@
 **Date(s) of Submission:** 12/16/18 (Code repository), 12/18/18 (Completed README.md)
 
 ## Introduction
-This software provides two tools which may be used in a complementary fashion. First, we provide a software package targeted at a raspberry pi connected to an ADXL345 accelerometer. This will allow the user to input a number of samples to be collected from the accelerometer. The accelerometer runs at 3200 Hz, and each sample is collected in an internal 32 level FIFO, before being read by the raspberry pi over SPI. This software runs the samples through a Kalman filter and numerical integration to filter out error and get velocity and position from acceleration data. Then our software outputs the raw data collected from the accelerometer and the Kalman filtered data in two separate .csv files. The files can then be loaded into the GUI and analyzed. 
-
+At a high level, this software package provides two complementary tools. First, we provide a software package targeted to run on a Raspberry Pi connected to an ADXL345 accelerometer. This will allow the user to input a number of samples to be collected from the accelerometer. The accelerometer runs at 3200 Hz and each sample is collected in an internal 32 level FIFO before being read by the Raspberry Pi over SPI. This software runs the samples through a Kalman filter and then performs numerical integration to mitigate error and derive velocity and position from acceleration data. Our software then outputs the raw data collected from the accelerometer and the Kalman filtered data into two separate .csv files. The files can then be loaded into the GUI and visualized for easy analysis. 
 
 ## Project Overview
 #### Motivation 
@@ -35,11 +34,10 @@ In this project, we apply Kalman filtering techniques on ADXL345 accelerometer d
 - _**QCustomPlot**_ 
 - _**Eigen**_
 - _**Liquid SDR**_ *(deprecated)*  
-
 #### Functional Block Diagrams 
 [Software Architecture Block Diagram](images/block_diagram.PNG)
 #### Data Flow Diagrams
-[Software Architecture Block Diagram](images/data_flow.PNG)
+[Software Architecture Data Flow Diagram](images/data_flow.PNG)
 #### Interface Descriptions
 The ADXL345 class is responsible for interfacing with the accelerometer.
 There are 3 main public methods:
@@ -48,7 +46,6 @@ There are 3 main public methods:
 | float* ADXL345::calibrate(int n) | This returns an array of length 3, which contains a time average over _n_ samples of each axis.  |
 | void ADXL345::start() |  This sets a start flag which starts the queue in a separate thread and starts collecting samples from the accelerometer over SPI. |
 | float** ADXL345::read(int n) | This method can be used in 2 ways. First, you can set _n_ to be the length of the queue, and then collect all your samples after the queue fills up. Second, you can set n to be less than the length of the queue and pop data off the queue in chunks. This is the way that we use the method in spatial.cpp: we read in chunks of 1, so that each data point can be filtered and integrated before moving to the next. |
-
 #### Installing Kalman Filter/Accelerometer Interface
 To install the software on the raspberry pi:
 
@@ -66,13 +63,12 @@ This will output an executable called spatial, which can be run by
 Note: sudo is important, otherwise you will get a "segmentation fault" error.
 
 For installing the GUI, see below:
-
 #### Graphical Interface/Data Visualization 
 In order to graphically display the position data before and after Kalman filtering, we created a Graphical User Interface (GUI) in Qt Creator version 5.10.1. Our GUI allows the user to read in a .csv file containing raw, 3 dimensional position data (units: m), specify the sampling rate, and display the axial position (x, y, or z, based on user selection) of the tracked object against time (unit: s). In addition to te aforementioned 2-dimensional plots, our data visualization application can also generate a 3-dimensional scatter plot that shows the x, y, and z points in space to give the user a sense for where the object has moved over the course of the movement trial. Detailed instructions for running our GUI can are located under the "Instructions for Compiling and Running the Software" section of the README. 
 #### Communication Protocols 
-Communication with the ADXL345 is done over 4 wire SPI using the BCM2835 library. There are 4 types of SPI protocols, which signify the clock polarity and phase used to interpret data. The ADXL345 uses SPI mode 3, which means clock polarity and phase are each mode 1. We originally were using the WiringPi library, but it is only capable of running SPI mode 1, which is not suitable for this project. We write to a few registers on the ADXL345, which sets the data rate, the bit order for data transfer, and starts samples collecting in the 32 level FIFO. Then, we read 6 bytes concurrently. The accelerometer sends back instantaneous data for 3 separate axes: x, y, and z. Each of these axes is represented by 2 bytes of data, a 10 bit sign extended two’s complement integer. This integer was then converted to a float and multiplied by a scaling factor of 3.9 m_g_/LSB, where _g_ is 9.8 m/s/s. 
+Communication with the ADXL345 is done over 4-wire SPI using the BCM2835 library. There are 4 types of SPI protocols, each of which signifies the clock polarity and phase used to interpret data. The ADXL345 uses SPI mode 3, which means that clock polarity and phase are both mode 1. We originally were using the WiringPi library, however, we discovered that it is only capable of running SPI mode 1 which is not suitable for this project. We write to a few registers on the ADXL345 that in turn sets the data rate, the bit order for data transfer, and begins sample collecting in the 32 level FIFO. After this, we read 6 bytes concurrently and the accelerometer sends back instantaneous data for 3 separate axes: x, y, and z. Each of these axes is represented by 2 bytes of data containing a 10 bit sign extended two’s complement integer. This integer was then converted to a float and multiplied by a scaling factor of 3.9 m*g*/LSB, where *g* is 9.8 m/s/s. 
 #### Threading and Concurrency
-Threading was necessary because we want to do data processing at the same time as we are collecting data. Otherwise, we may drop samples which will cause discontinuities in our data and generate huge errors. In order to do this, we used a lockless wait-free, circular FIFO. This code was courtesy of Kjell Hedstrom (https://bitbucket.org/KjellKod/lock-free-wait-free-circularfifo/src). Specifically, this data structure is suitable for a single-producer, single-consumer multithreaded queue, which was exactly our implementation. This type of queue was written for realtime audio processing, and thus pushing and popping was extremely fast. The std::thread class (introduced in C++11) was used to spawn a thread with a worker that read SPI and pushed data to the queue. Then, the main thread of the program pops data from the queue, Kalman filters, and numerically integrates.
+Threading was necessary because we want to perform data processing at the same time as data collection. Otherwise, if we did not thread,  we could risk dropping samples, leading to data discontinuities that could cause system-wide errors. In order to do this, we used a lockless, wait-free, circular FIFO. This code was courtesy of Kjell Hedstrom (https://bitbucket.org/KjellKod/lock-free-wait-free-circularfifo/src). Specifically, this data structure is suitable for a single-producer, single-consumer multithreaded queue, which fit perfectly into our implementation. This type of queue was written for real-time audio processing, so it was necessary that pushing and popping could be executed expediently. The std::thread class (introduced in C++11) was used to spawn a thread with a worker that read SPI and pushed back data to the queue. Then, the main thread of the program pops data from the queue, applies the Kalman filter, and numerically integrates.
 #### Exception Handling
 In order to make our system more robust, we implemented exception handling in our graphical user interface. The GUI checks to make sure that the .csv file that the user inputs is valid and if not, prompts the user to input a different one. We also designed the GUI so that the user must write a valid .csv file name, choose a sampling rate, and specify which axis to display *before* plotting occurs. 
 ## Testing and Evaluation 
@@ -81,8 +77,7 @@ In order to make our system more robust, we implemented exception handling in ou
 + Linux (Raspbian and Debian)
 + Windows 10 (Kalman)
 #### Description of Functional Testing to date
-Generated MATLAB scripts for quick visualization of reported data from acceleration for different state size. There is also a MATLAB script which performs the numerical integration on the filtered acceleration data using MATLAB’s built-in functions for comparison to C++. The MATLAB testing scripts are placed in a folder named MATLAB.
-implementation
+We generated MATLAB scripts to quickly double-check the visualization of reported accleration data for different state sizes. We also wrote a MATLAB script that performs the numerical integration on filtered acceleration data using built-in functions for comparative purposes. The MATLAB testing scripts can be found in the repository under a folder named *MATLAB*.
 #### Instructions for Compiling and Running the Software
 ###### Graphical Interface/Data Visualization
 Our GUI was created using Qt Creator version 5.10.1 and made use of the QCustomPlot external library and the Qt Data Visualization module that comes with this version of the software. Everything was created and tested on the CCV; our executable file will run on any Linux machine, but will not on Windows and iOS devices. The instruction list below provides a comprehensive tutorial on how to run and build our GUI software application **in the CCV environment**: 
