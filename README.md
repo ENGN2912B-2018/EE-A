@@ -89,21 +89,32 @@ Our GUI was created using Qt Creator version 5.10.1 and made use of the QCustomP
 4. Click run and the GUI should pop up. From here, you may specify a .csv file (it must be in the same directory as the .pro and other files associated with the project) to read in, select a sampling rate, and then click the plot buttons to see 2D and 3D position data. 
 
 ## Conclusions
-The main objectives were achieved. Through numerical integration, we were successfully able to determine the position of the system within a half of a meter deviation from the true position. Consequently, we are also able to provide estimates on the velocity of the system. Lastly, we developed an  intuitive and user-friendly Qt visualization was created plot three-axes data for analysis. 
+The main objectives were mostly achieved. Through numerical integration, we were able to successfully determine the position of the system within a 0.5 m deviation from the true position. Consequently, we were also able to provide estimates on the velocity of the system. Lastly, we developed an intuitive and user-friendly GUI using Qt, plotting three-axis data for analysis in both two and three-dimensional space. 
 
-Applying a Kalman Filter to acceleration data to directly find position proved to be extremely difficult. Regardless of the tuning (the values of the covariance matrix or adjustment to terms in the equations), we could not develop a system which gave consistent position data for even the most simplistic tests, like no motion or motion in one direction. As our end goal was to track position, we realized we had to change our methods. Rather than use the Kalman filter to get position data directly, we decided to use numerical integration to get velocity first then position. The Kalman filtering was done just on the acceleration data. 
+Applying a Kalman Filter to acceleration data to directly find position proved to be extremely difficult. Regardless of the tuning (the adjusting of the values in the covariance matrix or adjustment to terms in the equations), we could not develop a system which gave consistent position data for even the most simplistic tests (e.g. no motion, motion in one direction, etc.). As our end goal was to track position, we realized we had to change our methods. Rather than use the Kalman filter to get position data directly, we decided to use numerical integration to get velocity *first*, and then get position next. The Kalman filtering was done just on the acceleration data. 
 
-Another consequence of the accelerometer was that angles could not be derived from the data. This is because two axes of tilt make the system underdetermined. To account for this, we had to constrain the tilt of the accelerometer such that the z-axis pointed directly down. Even with this constraint, components from gravity affected the acceleration reports in the x and y axes which resulted in slight errors.
+Another consequence of the accelerometer was that angles could not be derived from the data. This is because two axes of tilt make the system underdetermined. To account for this, we had to constrain the tilt of the accelerometer such that the z-axis pointed directly down. Even with this added constraint, components from gravity affected the acceleration reports in the x and y axes which resulted in slight errors.
+
 
 #### Future Work
-Description of potential future software expansions and software features
+The ADXL345 accelerometer contains many features that we did not take advantage of during this project. One certainly useful capability is the “Self Test” feature, which automatically calibrates the axes. During testing we set the accelerometer at the highest sensitivity, which happens right at the beginning in the configuration of the module. To make the the positional tracker’s applications more flexible, we could make the desired sensitivity a user input at the front end. 
+
+As stated above, we had to constrain one axis of rotation in order to successfully track position. In order to track position with no rotational constraints, we would need to add another external sensor, such as a gyroscope or magnetometer. These sensors would give us the necessary data to recover the rotational frame. 
+
+Our Kalman filter relied on a linear relationship on the data to be processed. The Extended Kalman Filter can better handle non-linear relationships and therefore would produce more robust error correction. 
+
+Perhaps our biggest future goal is the data pipeline. In our current implementation, data is accumulated, processed, and stored on the Pi. Those files then must be separately transferred to the host machine for the GUI. This process works fine if the user does need real-time positional tracking and just needs historical data. To implement real-time tracking, we would need to add in a Mobile Data HAT (Hardware Attached on Top) to stream the data from the Pi to the GUI host machine (assuming the tracker isn’t in a WiFi environment—the RPi 3B has built-in WiFi). We would then need to modify our GUI to accommodate real-time data, which can be done within QCustomPlot, which is already used in the project. 
+
 
 #### Author Contributions 
+
 | Software contribution       | Author          | 
 | ------------- |:-------------:|
-| a | a | 
-| b | b |  
-| c | c |  
-| d | d |
+| Evan Pandya | GUI | 
+| Yale Friend | GUI & Embedded Software |  
+| Kevin Anderson | Kalman Filtering & Numerical Integration |  
+| Michael Caplan | Embedded Software & Accelerometer Communication |
+
+
 
 
