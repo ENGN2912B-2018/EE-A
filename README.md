@@ -1,5 +1,5 @@
 # Embedded Spatial Tracking with Kalman Filtering
-<p align="center">
+<p align="left">
   <img src="https://www.brown.edu/academics/engineering/sites/brown.edu.academics.engineering/themes/engineering/img/brown-engineering-logo.png" alt="Brown School of Engineering Logo"/>
 </p>
 
