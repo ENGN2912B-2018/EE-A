@@ -82,7 +82,7 @@ int main() {
   vel_prev << 0, 0, 0;
 
   // Stop when 'a' key pressed
-  while(iter <= test_len) {
+  while(iter <= num_samples) {
 
      // Read in acceleration for each direction
      float **results = acc.read(read_size);

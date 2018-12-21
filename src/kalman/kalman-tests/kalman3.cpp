@@ -74,9 +74,7 @@ int main(int argc, char * argv[]) {
    char let;
    bool stop = false;
 
-   int iter = 0;                // for testing; tracks iterations
-   int test_len = 30000;        // for testing; max number of iterations
-   char * buff = new char[10];  // for testing;
+
 
    char filtered;
    std::cout << "is file filtered (y/n): ";
@@ -90,7 +88,9 @@ int main(int argc, char * argv[]) {
    std::cout << "iterations: ";
    std::cin >> test_len;
 
-
+   int iter = 0;                // for testing; tracks iterations
+   int test_len = 30000;        // for testing; max number of iterations
+   char * buff = new char[10];  // for testing;
 
    VectorXd z(3);            // Measurement data from accelerometer
    VectorXd x_(3);           // Kalman prediction (acceleration)
