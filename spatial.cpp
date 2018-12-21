@@ -43,14 +43,16 @@ int main() {
   // Kalman filter
   KalmanFilter kalman(0, F, H, Q, R, P_init);
   kalman.init(0, x_init);
-  // Instantiate accelerometer class
-  ADXL345 acc;
 
   //read_size (can be set lower than desired number of samples for batch ops  - if you need extra processing close to realtime)
   int read_size = 1;
   int num_samples = 0;
   cout << "Please enter desired number of samples (maximum is 500000): ";
   cin >> num_samples;
+
+  //instantiate accelerometer class
+  ADXL345 acc(num_samples);
+
 
   // Calibrate
   float* calibration = acc.calibrate(100);
@@ -79,13 +81,16 @@ int main() {
   pos_sum << 0, 0, 0;
 
   while(iter <= num_samples) {
-
+    cout<<"starting loop #"<<iter<<endl;
+     
      // Read in acceleration data from buffer
      float **results = acc.read(read_size);
+     cout<<"read data"<<endl;
      z(0) = results[0][0];
      z(1) = results[0][1];
      z(2) = results[0][2];
 
+     cout<<"kalman"<<endl;
      kalman.update(z);
      x_ = kalman.state();
 
@@ -94,7 +99,8 @@ int main() {
 
      vel_sum += vel;
      pos_sum += pos;
-
+     
+     cout<<"integrate"<<endl;
      // Numerical integration
      for(int i = 0; i < 3; i++){
       if(i == 2) {
@@ -110,7 +116,7 @@ int main() {
     x_prev = x_;
     vel_prev = vel;
 
-
+    cout<<"ending loop #"<<iter<<endl;
     iter++; // Increment
   }
   

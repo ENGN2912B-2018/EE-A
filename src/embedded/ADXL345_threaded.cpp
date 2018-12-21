@@ -16,7 +16,7 @@ using namespace memory_sequential_consistent;
 
 
 //multithreading method that pushes to the queue
-void thread_spi(CircularFifo<float, 500000> *queue, int* qcounter, bool *start_gate){
+void thread_spi(CircularFifo<float, 500000> *queue, int* qcounter, bool *start_gate, int num_samples){
 
   //wait for start gate
   while(!*start_gate){}
@@ -40,7 +40,7 @@ void thread_spi(CircularFifo<float, 500000> *queue, int* qcounter, bool *start_g
 
     #define DATA 0x32
     // loop through data read and push
-    for(int i = 0; i<1000; i++){
+    for(int i = 0; i<=3*num_samples+10; i++){
 
       //for each sample read, increment the size counter
       *qcounter+=1;
@@ -78,7 +78,7 @@ void thread_spi(CircularFifo<float, 500000> *queue, int* qcounter, bool *start_g
 }
 
   //constructor
-  ADXL345::ADXL345(){
+  ADXL345::ADXL345(int num_samples){
     cout<<"constructor"<<endl;
     //first, set up bcm stuff for spi
     bcm2835_init();
@@ -102,7 +102,7 @@ void thread_spi(CircularFifo<float, 500000> *queue, int* qcounter, bool *start_g
 
     //start collection thread
     cout<<"spinning up thread"<<endl;
-    thread_obj = thread(thread_spi, &queue, &qcounter, &start_gate);
+    thread_obj = thread(thread_spi, &queue, &qcounter, &start_gate, num_samples);
     // thread_obj.detach();
   }
 
@@ -124,7 +124,8 @@ void ADXL345::start(){
 float** ADXL345::read(int n){
 
   //wait until the queue has at least 3*n samples
-  while(qcounter<n*3){}
+  while(qcounter<n*3){
+  }
 
   // necessary variables
   float** out_data = new float*[n];
