@@ -85,12 +85,11 @@ int main() {
   while(iter <= test_len) {
 
      // Read in acceleration for each direction
-     data.getline(buff, 20, ',');
-     z(0) = atof(buff);
-     data.getline(buff, 20, ',');
-     z(1) = atof(buff);
-     data.getline(buff, 20, '\n');
-     z(2) = atof(buff);
+     float **results = acc.read(read_size);
+     cout<<"read data"<<endl;
+     z(0) = results[0][0];
+     z(1) = results[0][1];
+     z(2) = results[0][2];
 
      kalman.update(z);
      x_ = kalman.state();
