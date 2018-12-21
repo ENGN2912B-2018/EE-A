@@ -1,9 +1,13 @@
 #ifndef NUM_INT
 #define NUM_INT
 
+#include <string>
+#include <fstream>
+#include <iostream>
+
 // Performs numerical integration on data.
 // Implementation performs two stage integration where
-// area is represented as 
+// area is represented as
 float * numerical_int(float* data);
 
 #endif /* end of include guard:  */
