@@ -85,12 +85,13 @@ int main(int argc, char * argv[]) {
      data.ignore(10, '\n');
      std::cout << "skipping first line" << std::endl;
    }
-   std::cout << "iterations: ";
-   std::cin >> test_len;
 
    int iter = 0;                // for testing; tracks iterations
    int test_len = 30000;        // for testing; max number of iterations
    char * buff = new char[10];  // for testing;
+
+   std::cout << "iterations: ";
+   std::cin >> test_len;
 
    VectorXd z(3);            // Measurement data from accelerometer
    VectorXd x_(3);           // Kalman prediction (acceleration)

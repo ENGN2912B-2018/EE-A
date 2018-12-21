@@ -53,7 +53,6 @@ int main() {
   //instantiate accelerometer class
   ADXL345 acc(num_samples);
 
-
   // Calibrate
   float* calibration = acc.calibrate(100);
   cout << calibration[0] << ", " << calibration[1] << ", " << calibration[2] << endl;
@@ -73,6 +72,7 @@ int main() {
   VectorXd vel_prev(3);     // Temporary container for x,y,z velocity
   VectorXd vel_sum(3);      // Sums for integration (velocity)
   VectorXd pos_sum(3);      // Sums for integration (position)
+  VectorXd calibrate(3);
 
   pos << 0, 0, 0;
   vel << 0, 0, 0;
@@ -80,6 +80,7 @@ int main() {
   vel_sum << 0, 0, 0;
   pos_sum << 0, 0, 0;
   vel_prev << 0, 0, 0;
+  calibrate << calibration[0] << calibration[1] << calibration[2];
 
   // Stop when 'a' key pressed
   while(iter <= num_samples) {
@@ -92,7 +93,7 @@ int main() {
      z(2) = results[0][2];
 
      kalman.update(z);
-     x_ = kalman.state();
+     x_ = kalman.state() - calibrate;
 
      vel = 0.5*step*(x_  + x_prev);
      pos = 0.5*step*(vel + 2*vel_prev);
