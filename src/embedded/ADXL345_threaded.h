@@ -13,7 +13,7 @@ using namespace memory_sequential_consistent;
 class ADXL345{
 public:
   //constructor
-  ADXL345();
+  ADXL345(int num_samples);
 
   //destructor
   ~ADXL345();
@@ -28,7 +28,7 @@ public:
   int qcounter = 0;
   bool start_gate = 0;
 
-private:
+
   char* buffer;
   CircularFifo<float, 500000> queue; // queue for multithreading
 
