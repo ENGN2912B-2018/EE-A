@@ -3,7 +3,7 @@
 // Code for Kalman filtering data from accelerometer on 3 variable state
 
 
-#include "../kalman_.hpp"
+#include "kalman.hpp"
 
 //using namespace std;
 using namespace Eigen;
@@ -24,8 +24,11 @@ int main(int argc, char * argv[]) {
       inputfile += "stationary.csv";
     }
 
-    std::cout << "writing output to: " << inputfile << std::endl;
-
+    std::cout << "reading from to: " << inputfile << std::endl;
+  // Files for output
+  std::fstream accf("acceleration.csv", std::fstream::out);
+  std::fstream velf("velocity.csv", std::fstream::out);
+  std::fstream posf("position.csv", std::fstream::out);
    // Create file stream
    std::fstream file("../testing output files/kalman.csv", std::fstream::out);
    std::fstream gain("../testing output files/gain.dat", std::fstream::out);
@@ -69,9 +72,6 @@ int main(int argc, char * argv[]) {
    // For testing, launch process to monitor key strokes (A - means stop
    // running filter)
    char let;
-
-   VectorXd z(3);           // Temporary container for x,y,z acceleration
-   VectorXd x_(3);           // Temporary container for x,y,z acceleration
    bool stop = false;
 
    int iter = 0;                // for testing; tracks iterations
@@ -90,7 +90,21 @@ int main(int argc, char * argv[]) {
    std::cout << "iterations: ";
    std::cin >> test_len;
 
-   MatrixXd K;
+   VectorXd vel_sum(3);
+   VectorXd pos_sum(3);
+   VectorXd vel(3);          // Temporary container for x,y,z velocity
+   VectorXd vel_prev(3);     // Temporary container for x,y,z velocity
+   VectorXd pos(3);          // Temporary container for x,y,z position
+   VectorXd z(3);            // Temporary container for x,y,z acceleration
+   VectorXd x_prev(3);       // Temporary container for x,y,z acceleration
+   VectorXd x_(3);           // Temporary container for x,y,z acceleration
+
+   pos << 0, 0, 0;
+   vel << 0, 0, 0;
+   vel_prev << 0, 0, 0;
+   x_prev << 0, 0, 0;
+   vel_sum << 0, 0, 0;
+   pos_sum << 0, 0, 0;
 
    // Stop when 'a' key pressed
    while(iter <= test_len) {
@@ -106,6 +120,7 @@ int main(int argc, char * argv[]) {
       kalman.update(z);
       x_ = kalman.state();
 
+/*
       K = kalman.gain();
       for(int r = 0; r < 3; r++) {
         for(int c = 0; c < 3; c++) {
@@ -116,18 +131,30 @@ int main(int argc, char * argv[]) {
          }
         }
       }
+*/
+
+      vel = 0.5*step*(x_  + x_prev);
+      pos = 0.5*step*(vel + 2*vel_prev);
+      vel_sum = vel_sum + vel;
+      pos_sum = pos_sum + pos;
+
+      // Numerical integration
       for(int i = 0; i < 3; i++){
        if(i == 2) {
-         file << x_(i) << std::endl;
+         accf << x_(i) << std::endl;
+         velf << vel_sum(i) << std::endl;
+         posf << pos_sum(i) << std::endl;
        } else {
-         file << x_(i) << ", ";
+         accf << x_(i) << ", ";
+         velf << vel_sum(i) << ", ";
+         posf << pos_sum(i) << ", ";
         }
       }
 
      // testing
      iter++;
-     //std::cin >> let;
-     stop = let == 'a' || iter == test_len;
+     x_prev = x_;
+     vel_prev = vel_sum;
    }
 
    data.close();
