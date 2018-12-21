@@ -80,7 +80,7 @@ int main() {
   vel_sum << 0, 0, 0;
   pos_sum << 0, 0, 0;
   vel_prev << 0, 0, 0;
-  calibrate << calibration[0] << calibration[1] << calibration[2];
+  calibrate << (double)calibration[0], (double)calibration[1],  (double)calibration[2];
 
   // Stop when 'a' key pressed
   while(iter <= num_samples) {
