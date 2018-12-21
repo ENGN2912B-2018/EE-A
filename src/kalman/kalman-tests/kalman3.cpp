@@ -90,21 +90,23 @@ int main(int argc, char * argv[]) {
    std::cout << "iterations: ";
    std::cin >> test_len;
 
-   VectorXd vel_sum(3);
-   VectorXd pos_sum(3);
+
+
+   VectorXd z(3);            // Measurement data from accelerometer
+   VectorXd x_(3);           // Kalman prediction (acceleration)
    VectorXd vel(3);          // Temporary container for x,y,z velocity
-   VectorXd vel_prev(3);     // Temporary container for x,y,z velocity
    VectorXd pos(3);          // Temporary container for x,y,z position
-   VectorXd z(3);            // Temporary container for x,y,z acceleration
    VectorXd x_prev(3);       // Temporary container for x,y,z acceleration
-   VectorXd x_(3);           // Temporary container for x,y,z acceleration
+   VectorXd vel_prev(3);     // Temporary container for x,y,z velocity
+   VectorXd vel_sum(3);      // Sums for integration (velocity)
+   VectorXd pos_sum(3);      // Sums for integration (position)
 
    pos << 0, 0, 0;
    vel << 0, 0, 0;
-   vel_prev << 0, 0, 0;
    x_prev << 0, 0, 0;
    vel_sum << 0, 0, 0;
    pos_sum << 0, 0, 0;
+   vel_prev << 0, 0, 0;
 
    // Stop when 'a' key pressed
    while(iter <= test_len) {

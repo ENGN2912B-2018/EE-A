@@ -61,46 +61,45 @@ int main() {
   //turn on the accelerometer and start adding to the queue
   acc.start();
 
-  VectorXd vel_sum(3);
-  VectorXd pos_sum(3);
-  VectorXd vel(3);          // Temporary container for x,y,z velocity
-  VectorXd vel_prev(3);     // Temporary container for x,y,z velocity
-  VectorXd pos(3);          // Temporary container for x,y,z position
-  VectorXd z(3);            // Temporary container for x,y,z acceleration
-  VectorXd x_prev(3);       // Temporary container for x,y,z acceleration
-  VectorXd x_(3);           // Temporary container for x,y,z acceleration
-
   int iter = 0;                // for testing; tracks iterations
   int test_len = 30000;        // for testing; max number of iterations
   char * buff = new char[10];  // for testing;
 
+  VectorXd z(3);            // Measurement data from accelerometer
+  VectorXd x_(3);           // Kalman prediction (acceleration)
+  VectorXd vel(3);          // Temporary container for x,y,z velocity
+  VectorXd pos(3);          // Temporary container for x,y,z position
+  VectorXd x_prev(3);       // Temporary container for x,y,z acceleration
+  VectorXd vel_prev(3);     // Temporary container for x,y,z velocity
+  VectorXd vel_sum(3);      // Sums for integration (velocity)
+  VectorXd pos_sum(3);      // Sums for integration (position)
+
+  pos << 0, 0, 0;
   vel << 0, 0, 0;
-  vel_prev << 0, 0, 0;
   x_prev << 0, 0, 0;
   vel_sum << 0, 0, 0;
   pos_sum << 0, 0, 0;
+  vel_prev << 0, 0, 0;
 
-  while(iter <= num_samples) {
-    cout<<"starting loop #"<<iter<<endl;
-     
-     // Read in acceleration data from buffer
-     float **results = acc.read(read_size);
-     cout<<"read data"<<endl;
-     z(0) = results[0][0];
-     z(1) = results[0][1];
-     z(2) = results[0][2];
+  // Stop when 'a' key pressed
+  while(iter <= test_len) {
 
-     cout<<"kalman"<<endl;
+     // Read in acceleration for each direction
+     data.getline(buff, 20, ',');
+     z(0) = atof(buff);
+     data.getline(buff, 20, ',');
+     z(1) = atof(buff);
+     data.getline(buff, 20, '\n');
+     z(2) = atof(buff);
+
      kalman.update(z);
      x_ = kalman.state();
 
-     vel = 0.5*step*(x_prev+x_);
-     pos = 0.5*step*(vel_prev+vel);
+     vel = 0.5*step*(x_  + x_prev);
+     pos = 0.5*step*(vel + 2*vel_prev);
+     vel_sum = vel_sum + vel;
+     pos_sum = pos_sum + pos;
 
-     vel_sum += vel;
-     pos_sum += pos;
-     
-     cout<<"integrate"<<endl;
      // Numerical integration
      for(int i = 0; i < 3; i++){
       if(i == 2) {
@@ -113,13 +112,13 @@ int main() {
         posf << pos_sum(i) << ", ";
        }
      }
-    x_prev = x_;
-    vel_prev = vel;
 
-    cout<<"ending loop #"<<iter<<endl;
-    iter++; // Increment
+    // testing
+    iter++;
+    x_prev = x_;
+    vel_prev = vel_sum;
   }
-  
+
   accf.close();
   velf.close();
   posf.close();
