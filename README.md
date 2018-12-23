@@ -35,9 +35,9 @@ In this project, we apply Kalman filtering techniques on ADXL345 accelerometer d
 - _**Eigen**_
 - _**Liquid SDR**_ *(deprecated)*  
 #### Functional Block Diagrams 
-[Software Architecture Block Diagram](images/block_diagram.PNG)
+![Software Architecture Block Diagram](images/block_diagram.PNG)
 #### Data Flow Diagrams
-[Software Architecture Data Flow Diagram](images/data_flow.PNG)
+![Software Architecture Data Flow Diagram](images/data_flow.png)
 #### Interface Descriptions
 The ADXL345 class is responsible for interfacing with the accelerometer.
 There are 3 main public methods:
